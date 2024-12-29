@@ -14,6 +14,7 @@ export type ReturnRow = RawBuild & {
 	version_java: string | null
 	version_supported: boolean | null
 	version_created: string | null
+	version2_created: string
 }
 
 const compatibility = [

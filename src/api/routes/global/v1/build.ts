@@ -92,16 +92,16 @@ export = new globalAPIRouter.Path('/')
 						)
 					)
 	
-					SELECT *, 0 AS build_count, '' AS _version_id, 'RELEASE' AS version_type, false AS version_supported, 0 AS version_java, now() AS version_created
+					SELECT *, 0 AS build_count, now()::timestamp as version2_created, '' AS _version_id, 'RELEASE' AS version_type, false AS version_supported, 0 AS version_java, now() AS version_created
 					FROM spec_build
-	
+
 					UNION ALL
-	
+
 					SELECT x.*, mv.*
 					FROM (
 						SELECT *
 						FROM (
-							SELECT b.*, count(1) OVER () AS build_count
+							SELECT b.*, count(1) OVER () AS build_count, min(b.created) OVER () AS version2_created
 							FROM filtered_builds b
 							ORDER BY b.id DESC
 						) LIMIT 1
@@ -128,10 +128,10 @@ export = new globalAPIRouter.Path('/')
 				latest: ctr["@"].database.prepare.rawBuild(latest),
 				version: {
 					id: latest.version_id || latest.project_version_id,
-					type: latest.version_type ?? undefined,
-					java: latest.version_java ?? undefined,
-					supported: latest.version_supported ?? undefined,
-					created: latest.version_created ? new Date(latest.version_created) : undefined,
+					type: latest.version_type ?? 'RELEASE',
+					java: latest.version_java ?? 21,
+					supported: latest.version_supported ?? true,
+					created: latest.version_created ? new Date(latest.version_created) : new Date(latest.version2_created),
 					builds: parseInt(latest.build_count)
 				}
 			})
