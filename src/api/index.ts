@@ -40,7 +40,7 @@ export const server = new Server(Runtime, {
 	sentry.use({
 		dsn: env.SENTRY_URL,
 		environment: process.env.NODE_ENV,
-		release: Version,
+		release: getVersion(),
 		tracesSampleRate: 1.0
 	})
 ], {
@@ -89,6 +89,12 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 			if (!organization && options.force) return end(ctr.status(ctr.$status.UNAUTHORIZED).print({ success: false, errors: ['Invalid Authorization'] }))
 
 			ctr["@"].organization = organization
+
+			ctr.scope().setUser({
+				id: `organization:${organization.id}`,
+				ip_address: ctr.client.ip.usual(),
+				username: `organization:${organization.name}`
+			})
 
 			if (organization && ctr["@"].request) {
 				ctr["@"].request.organizationId = organization.id
@@ -162,6 +168,13 @@ const userValidator = new server.Validator()
 
 		if (!user) return end(ctr.status(ctr.$status.UNAUTHORIZED).print({ success: false, errors: ['Unauthorized'] }))
 		ctr["@"].user = user
+
+		ctr.scope().setUser({
+			id: user.id,
+			email: user.email,
+			username: user.login,
+			ip_address: ctr.client.ip.usual(),
+		})
 
 		await ctr["@"].database.write.update(ctr["@"].database.schema.userSessions)
 			.set({
