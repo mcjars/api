@@ -125,6 +125,7 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 			)
 	
 			ctr.headers.set('X-Request-ID', ctr["@"].request.id)
+			ctr.scope().setTag('request_id', ctr["@"].request.id)
 		} else {
 			ctr["@"].request = null
 		}
