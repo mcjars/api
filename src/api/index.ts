@@ -91,14 +91,14 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 
 			ctr["@"].organization = organization
 
-			ctr.scope().setUser({
-				id: `organization:${organization.id}`,
-				ip_address: ctr.client.ip.usual(),
-				username: `organization:${organization.name}`
-			})
-
 			if (organization && ctr["@"].request) {
 				ctr["@"].request.organizationId = organization.id
+
+				ctr.scope().setUser({
+					id: `organization:${organization.id}`,
+					ip_address: ctr.client.ip.usual(),
+					username: `organization:${organization.name}`
+				})
 			}
 		}
 	})
