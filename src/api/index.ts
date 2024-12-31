@@ -41,7 +41,8 @@ export const server = new Server(Runtime, {
 		dsn: env.SENTRY_URL,
 		environment: process.env.NODE_ENV,
 		release: getVersion(),
-		tracesSampleRate: 1.0
+		tracesSampleRate: 1.0,
+		serverName: env.SERVER_NAME
 	})
 ], {
 	appVersion: getVersion(),

@@ -29,7 +29,9 @@ const infos = z.object({
 
 	APP_URL: z.string(),
 	APP_FRONTEND_URL: z.string().optional(),
-	APP_COOKIE_DOMAIN: z.string().optional()
+	APP_COOKIE_DOMAIN: z.string().optional(),
+
+	SERVER_NAME: z.string().optional()
 })
 
 export type Environment = z.infer<typeof infos>
