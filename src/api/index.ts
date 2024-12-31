@@ -10,6 +10,7 @@ import * as requests from "@/globals/requests"
 import { ServerType, types } from "@/schema"
 import { and, eq, or } from "drizzle-orm"
 import { time } from "@rjweb/utils"
+import { sentry } from "@rjweb/sentry"
 
 const startTime = performance.now()
 
@@ -35,6 +36,12 @@ export const server = new Server(Runtime, {
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 		headers: ['Authorization', 'Content-Type', 'Accept'],
 		exposeHeaders: ['Authorization', 'Content-Type', 'Accept']
+	}),
+	sentry.use({
+		dsn: env.SENTRY_URL,
+		environment: process.env.NODE_ENV,
+		release: Version,
+		tracesSampleRate: 1.0
 	})
 ], {
 	appVersion: getVersion(),

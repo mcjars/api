@@ -96,6 +96,8 @@ async function lookupBuild(data: z.infer<typeof buildSearch>) {
 		`)
 	}, time(30).m())
 
+	if (!build) return [ null, null, [] ] as const
+
 	const configs = await cache.use(`configs::build::${build.id}`, () => database.select({
 			location: database.schema.configs.location,
 			type: database.schema.configs.type,
