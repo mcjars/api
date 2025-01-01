@@ -11,6 +11,7 @@ import { ServerType, types } from "@/schema"
 import { and, eq, or } from "drizzle-orm"
 import { time } from "@rjweb/utils"
 import { sentry } from "@rjweb/sentry"
+import * as Sentry from "@sentry/node"
 
 const startTime = performance.now()
 
@@ -42,7 +43,14 @@ export const server = new Server(Runtime, {
 		environment: process.env.NODE_ENV,
 		release: getVersion(),
 		tracesSampleRate: 1.0,
-		serverName: env.SERVER_NAME
+		profilesSampleRate: 1.0,
+		includeBody: true,
+		serverName: env.SERVER_NAME,
+		integrations: [
+			Sentry.postgresIntegration(),
+			Sentry.redisIntegration(),
+			Sentry.httpIntegration({ disableIncomingRequestSpans: true })
+		]
 	})
 ], {
 	appVersion: getVersion(),
@@ -94,11 +102,7 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 			if (organization && ctr["@"].request) {
 				ctr["@"].request.organizationId = organization.id
 
-				ctr.scope().setUser({
-					id: `organization:${organization.id}`,
-					ip_address: ctr.client.ip.usual(),
-					username: `organization:${organization.name}`
-				})
+				ctr.span()?.setAttribute('organization_id', organization.id)
 			}
 		}
 	})
@@ -125,7 +129,7 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 			)
 	
 			ctr.headers.set('X-Request-ID', ctr["@"].request.id)
-			ctr.scope().setTag('request_id', ctr["@"].request.id)
+			ctr.span()?.setAttribute('request_id', ctr["@"].request.id)
 		} else {
 			ctr["@"].request = null
 		}
