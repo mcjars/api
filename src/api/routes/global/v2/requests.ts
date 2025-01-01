@@ -65,7 +65,7 @@ export = new globalAPIRouter.Path('/')
 									'/',
 									1
 								)
-							)`.as('type')
+							)`.mapWith((str: string) => str.split('?')[0]).as('type')
 						})
 							.from(ctr["@"].database.schema.requests)
 							.where(and(
@@ -189,7 +189,7 @@ export = new globalAPIRouter.Path('/')
 									'/',
 									1
 								)
-							)`.as('type')
+							)`.mapWith((str: string) => str.split('?')[0]).as('type')
 						})
 							.from(ctr["@"].database.schema.requests)
 							.where(and(
