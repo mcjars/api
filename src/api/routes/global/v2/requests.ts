@@ -208,6 +208,8 @@ export = new globalAPIRouter.Path('/')
 				time(3).h()
 			)
 
+			console.log(requests)
+
 			return ctr.print({
 				success: true,
 				requests: Object.fromEntries(ctr["@"].database.schema.types.map((type) => [
@@ -301,7 +303,7 @@ export = new globalAPIRouter.Path('/')
 								)
 							)
 							ELSE '/'
-						END`.as('version')
+						END`.mapWith((str: string) => str.split('?')[0]).as('version')
 					})
 						.from(ctr["@"].database.schema.requests)
 						.where(and(
@@ -457,7 +459,7 @@ export = new globalAPIRouter.Path('/')
 								)
 							)
 							ELSE '/'
-						END`.as('version')
+						END`.mapWith((str: string) => str.split('?')[0]).as('version')
 					})
 						.from(ctr["@"].database.schema.requests)
 						.where(and(
