@@ -45,6 +45,8 @@ export const server = new Server(Runtime, {
 		tracesSampleRate: 1.0,
 		profilesSampleRate: 1.0,
 		serverName: env.SERVER_NAME,
+		attachStacktrace: true,
+		includeBody: true,
 		integrations: [
 			Sentry.postgresIntegration(),
 			Sentry.redisIntegration(),

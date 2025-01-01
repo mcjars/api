@@ -13,7 +13,7 @@
   "dependencies": {
     "@octokit/oauth-app": "^7.1.4",
     "@rjweb/runtime-node": "^1.1.1",
-    "@rjweb/sentry": "^2.1.4",
+    "@rjweb/sentry": "^2.1.5",
     "@rjweb/utils": "^1.12.27",
     "@sentry/node": "^8.47.0",
     "ansi-colors": "^4.1.3",

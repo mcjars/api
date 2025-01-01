@@ -15,8 +15,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       '@rjweb/sentry':
-        specifier: ^2.1.4
-        version: 2.1.4
+        specifier: ^2.1.5
+        version: 2.1.5
       '@rjweb/utils':
         specifier: ^1.12.27
         version: 1.12.27
@@ -787,8 +787,8 @@ packages:
   '@rjweb/runtime-node@1.1.1':
     resolution: {integrity: sha512-rlNGXQV3IYn19MsJhnd+tOaEr09vTvRw498ihsKzEDcUsidqN8nYrOS3sRI5I0w6ROY4zyAMsUFbSucktngx1w==}
 
-  '@rjweb/sentry@2.1.4':
-    resolution: {integrity: sha512-ii0J1dHXeJoRjkHVLnbkQ/NKkLgONckiDHaIQWSR2Rn4yJGNC5a1OPY55cL2LRZzrK/5PY9ArC45mH4ZEgWEIg==}
+  '@rjweb/sentry@2.1.5':
+    resolution: {integrity: sha512-kurfaPZJw40butfjGrqIHU/omcHIpK/IPLE/dNug55r07UE+b/Oz14UP6FzFN2Olunm7job8B2JimBaRC5NOlA==}
 
   '@rjweb/utils@1.12.27':
     resolution: {integrity: sha512-8XEf4WyAJpicJyDAwwq+rDajXyh6aRlN1eE22iz9vcmmb0MFZIsk1i826ExnwmE4mxtww6lA44YDtH+CygWtPQ==}
@@ -2058,7 +2058,7 @@ snapshots:
     transitivePeerDependencies:
       - utf-8-validate
 
-  '@rjweb/sentry@2.1.4':
+  '@rjweb/sentry@2.1.5':
     dependencies:
       '@sentry/node': 8.47.0
       rjweb-server: 9.8.4
