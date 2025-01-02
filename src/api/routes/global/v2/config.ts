@@ -113,7 +113,7 @@ export = new globalAPIRouter.Path('/')
 		})
 		.onRequest(async(ctr) => {
 			const data = z.object({
-				file: z.string(),
+				file: z.string().refine((file) => file in configs),
 				config: z.string().transform((str) => str.replaceAll('\\n', '\n'))
 			}).safeParse(await ctr.$body().json().catch(() => null))
 
