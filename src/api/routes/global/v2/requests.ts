@@ -61,11 +61,15 @@ export = new globalAPIRouter.Path('/')
 							ip: ctr["@"].database.schema.requests.ip,
 							type: sql<string>`UPPER(
 								SPLIT_PART(
-									SUBSTR(${ctr["@"].database.schema.requests.path}, ${'/api/v_/builds/'.length} + 1),
+									SPLIT_PART(
+										SUBSTR(${ctr["@"].database.schema.requests.path}, ${'/api/v_/builds/'.length} + 1),
+										'?',
+										1
+									),
 									'/',
 									1
 								)
-							)`.mapWith((str: string) => str.split('?')[0]).as('type')
+							)`.as('type')
 						})
 							.from(ctr["@"].database.schema.requests)
 							.where(and(
@@ -185,11 +189,15 @@ export = new globalAPIRouter.Path('/')
 							ip: ctr["@"].database.schema.requests.ip,
 							type: sql<string>`UPPER(
 								SPLIT_PART(
-									SUBSTR(${ctr["@"].database.schema.requests.path}, ${'/api/v_/builds/'.length} + 1),
+									SPLIT_PART(
+										SUBSTR(${ctr["@"].database.schema.requests.path}, ${'/api/v_/builds/'.length} + 1),
+										'?',
+										1
+									),
 									'/',
 									1
 								)
-							)`.mapWith((str: string) => str.split('?')[0]).as('type')
+							)`.as('type')
 						})
 							.from(ctr["@"].database.schema.requests)
 							.where(and(
@@ -293,17 +301,21 @@ export = new globalAPIRouter.Path('/')
 				ctr["@"].cache.use(`requests::${type}`, () => ctr["@"].database.select({
 						total: count().as('total'),
 						uniqueIps: countDistinct(ctr["@"].database.schema.requests.ip),
-						version: sql<string>`CASE 
+						version: sql<string>`CASE
 							WHEN LENGTH(${ctr["@"].database.schema.requests.path}) > ${`/api/v_/builds/${type}/`.length}
 							THEN UPPER(
 								SPLIT_PART(
-									SUBSTR(${ctr["@"].database.schema.requests.path}, ${`/api/v_/builds/${type}/`.length} + 1),
+									SPLIT_PART(
+										SUBSTR(${ctr["@"].database.schema.requests.path}, ${`/api/v_/builds/${type}/`.length} + 1),
+										'?',
+										1
+									),
 									'/',
 									1
 								)
 							)
 							ELSE '/'
-						END`.mapWith((str: string) => str.split('?')[0]).as('version')
+						END`.as('version')
 					})
 						.from(ctr["@"].database.schema.requests)
 						.where(and(
@@ -453,13 +465,17 @@ export = new globalAPIRouter.Path('/')
 							WHEN LENGTH(${ctr["@"].database.schema.requests.path}) > ${`/api/v_/builds/${type}/`.length}
 							THEN UPPER(
 								SPLIT_PART(
-									SUBSTR(${ctr["@"].database.schema.requests.path}, ${`/api/v_/builds/${type}/`.length} + 1),
+									SPLIT_PART(
+										SUBSTR(${ctr["@"].database.schema.requests.path}, ${`/api/v_/builds/${type}/`.length} + 1),
+										'?',
+										1
+									),
 									'/',
 									1
 								)
 							)
 							ELSE '/'
-						END`.mapWith((str: string) => str.split('?')[0]).as('version')
+						END`.as('version')
 					})
 						.from(ctr["@"].database.schema.requests)
 						.where(and(
