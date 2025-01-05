@@ -12,8 +12,7 @@ try {
 	}
 }
 
-const infos = z.object({
-	REDIS_URL: z.string(),
+const base = z.object({
 	SENTRY_URL: z.string().optional(),
 	DATABASE_URL: z.string(),
 	DATABASE_URL_PRIMARY: z.string().optional(),
@@ -33,6 +32,17 @@ const infos = z.object({
 
 	SERVER_NAME: z.string().optional()
 })
+
+const infos = z.union([
+	z.object({
+		REDIS_MODE: z.literal('redis').default('redis'),
+		REDIS_URL: z.string()
+	}).merge(base),
+	z.object({
+		REDIS_MODE: z.literal('sentinel'),
+		REDIS_SENTINEL_NODES: z.string().transform((str) => str.split(',').map((node) => node.trim().split(':').map((part, i) => i === 1 ? parseInt(part) : part)) as [string, number][]),
+	}).merge(base)
+])
 
 export type Environment = z.infer<typeof infos>
 

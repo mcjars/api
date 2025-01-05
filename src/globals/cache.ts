@@ -7,7 +7,12 @@ import { time } from "@rjweb/utils"
 const startTime = performance.now(),	
 	localCache = new Map<string, any>()
 
-const redis = new Redis(env.REDIS_URL)
+const redis = env.REDIS_MODE === 'redis'
+	? new Redis(env.REDIS_URL)
+	: new Redis({
+		sentinels: env.REDIS_SENTINEL_NODES.map(([host, port]) => ({ host, port })),
+		name: 'mymaster'
+	})
 
 redis.once('connect', () => {
 	logger()
