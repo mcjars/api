@@ -57,12 +57,7 @@ const pending: Request[] = [],
 	if (!organization) {
 		let ratelimitKey = 'ratelimit::'
 		if (ip['type'] === 4) ratelimitKey += ip.long()
-		else {
-			// strip the ipv6 to a /64
-			const subnet = new network.Subnet(`${ip.long()}/64`)
-
-			ratelimitKey += subnet.first().long()
-		}
+		else ratelimitKey += ip.rawData.slice(0, 4).join(':')
 
 		const count = await cache.incr(ratelimitKey)
 		if (count === 1) await cache.expire(ratelimitKey, Math.floor(time(1).m() / 1000))
