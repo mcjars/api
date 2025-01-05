@@ -216,8 +216,6 @@ export = new globalAPIRouter.Path('/')
 				time(3).h()
 			)
 
-			console.log(requests)
-
 			return ctr.print({
 				success: true,
 				requests: Object.fromEntries(ctr["@"].database.schema.types.map((type) => [
