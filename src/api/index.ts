@@ -107,7 +107,7 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 			}
 		}
 	})
-	.httpRequest(async(ctr) => {
+	.httpRequest(async(ctr, end) => {
 		if (
 			!ctr.url.query.includes('tracking=none') &&
 			ctr.url.path.startsWith('/api') &&
@@ -118,7 +118,7 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 			ctr.url.method !== 'TRACE' &&
 			ctr.url.method !== 'CONNECT'
 		) {
-			ctr["@"].request = requests.log(
+			ctr["@"].request = await requests.log(
 				ctr.url.method,
 				ctr.url.href,
 				await ctr.$body().json().catch(() => null),
@@ -126,11 +126,14 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 				ctr.client.origin,
 				ctr.client.userAgent,
 				ctr["@"].organization?.id ?? null,
-				ctr["@"].data
+				ctr["@"].data,
+				ctr.headers
 			)
-	
+
 			ctr.headers.set('X-Request-ID', ctr["@"].request.id)
 			ctr.span()?.setAttribute('request_id', ctr["@"].request.id)
+
+			if (ctr["@"].request.end) return end(ctr.status(ctr.$status.TOO_MANY_REQUESTS).print({ success: false, errors: ['You are making too many requests! Slow down.'] }))
 		} else {
 			ctr["@"].request = null
 		}

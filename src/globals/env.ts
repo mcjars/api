@@ -18,6 +18,7 @@ const base = z.object({
 	DATABASE_URL_PRIMARY: z.string().optional(),
 
 	PORT: z.string().transform((str) => parseInt(str)).optional(),
+	RATELIMIT_PER_MINUTE: z.string().transform((str) => parseInt(str)).optional().default('120'),
 	S3_URL: z.string(),
 
 	GITHUB_CLIENT_ID: z.string().optional(),

@@ -1,5 +1,5 @@
 import { globalAPIRouter } from "@/api"
-import { and, asc, count, countDistinct, desc, gte, isNotNull, like, lte, notLike, sql } from "drizzle-orm"
+import { and, asc, count, countDistinct, desc, eq, gte, isNotNull, like, lte, notLike, sql } from "drizzle-orm"
 import { object, time } from "@rjweb/utils"
 import { ServerType, types } from "@/schema"
 
@@ -46,6 +46,7 @@ export = new globalAPIRouter.Path('/')
 					})
 						.from(ctr["@"].database.schema.requests)
 						.where(and(
+							eq(ctr["@"].database.schema.requests.status, 200),
 							isNotNull(ctr["@"].database.schema.requests.data),
 							notLike(ctr["@"].database.schema.requests.path, `%tracking=nostats%`),
 							sql`${ctr["@"].database.schema.requests.data}->>'type' = 'lookup'`
@@ -144,6 +145,7 @@ export = new globalAPIRouter.Path('/')
 					})
 						.from(ctr["@"].database.schema.requests)
 						.where(and(
+							eq(ctr["@"].database.schema.requests.status, 200),
 							isNotNull(ctr["@"].database.schema.requests.data),
 							notLike(ctr["@"].database.schema.requests.path, `%tracking=nostats%`),
 							sql`${ctr["@"].database.schema.requests.data}->>'type' = 'lookup'`,
@@ -232,6 +234,7 @@ export = new globalAPIRouter.Path('/')
 					})
 						.from(ctr["@"].database.schema.requests)
 						.where(and(
+							eq(ctr["@"].database.schema.requests.status, 200),
 							isNotNull(ctr["@"].database.schema.requests.data),
 							notLike(ctr["@"].database.schema.requests.path, `%tracking=nostats%`),
 							sql`${ctr["@"].database.schema.requests.data}->>'type' = 'lookup'`,
@@ -346,6 +349,7 @@ export = new globalAPIRouter.Path('/')
 					})
 						.from(ctr["@"].database.schema.requests)
 						.where(and(
+							eq(ctr["@"].database.schema.requests.status, 200),
 							isNotNull(ctr["@"].database.schema.requests.data),
 							notLike(ctr["@"].database.schema.requests.path, `%tracking=nostats%`),
 							sql`${ctr["@"].database.schema.requests.data}->>'type' = 'lookup'`,
@@ -420,6 +424,7 @@ export = new globalAPIRouter.Path('/')
 				})
 					.from(ctr["@"].database.schema.requests)
 					.where(and(
+						eq(ctr["@"].database.schema.requests.status, 200),
 						isNotNull(ctr["@"].database.schema.requests.data),
 						notLike(ctr["@"].database.schema.requests.path, `%tracking=nostats%`),
 						sql`${ctr["@"].database.schema.requests.data}->>'type' = 'lookup'`
@@ -517,6 +522,7 @@ export = new globalAPIRouter.Path('/')
 				})
 					.from(ctr["@"].database.schema.requests)
 					.where(and(
+						eq(ctr["@"].database.schema.requests.status, 200),
 						isNotNull(ctr["@"].database.schema.requests.data),
 						notLike(ctr["@"].database.schema.requests.path, `%tracking=nostats%`),
 						sql`${ctr["@"].database.schema.requests.data}->>'type' = 'lookup'`,

@@ -1,13 +1,16 @@
 import database from "@/globals/database"
 import logger from "@/globals/logger"
 import { network, string, time } from "@rjweb/utils"
-import { JSONParsed } from "rjweb-server"
+import { Content, JSONParsed, ValueCollection } from "rjweb-server"
 import * as schema from "@/schema"
+import cache from "@/globals/cache"
+import env from "@/globals/env"
 import { lookup } from "@/globals/ip"
 
 export type Request = {
 	id: string
 	organizationId: number | null
+	end: boolean
 
 	origin: string
 	method: schema.Method
@@ -29,10 +32,11 @@ const pending: Request[] = [],
 /**
  * Log a new request
  * @since 1.18.0
-*/ export function log(method: schema.Method, route: string | RegExp, body: JSONParsed | null, ip: network.IPAddress, origin: string, userAgent: string, organization: number | null, data: Record<string, any> | null): Request {
+*/ export async function log(method: schema.Method, route: string | RegExp, body: JSONParsed | null, ip: network.IPAddress, origin: string, userAgent: string, organization: number | null, data: Record<string, any> | null, headers: ValueCollection<string, string, Content>): Promise<Request> {
 	const request: Request = {
 		id: string.generate({ length: 12 }),
 		organizationId: organization ?? null,
+		end: false,
 
 		origin,
 		method,
@@ -49,6 +53,28 @@ const pending: Request[] = [],
 	}
 
 	pending.push(request)
+
+	if (!organization) {
+		let ratelimitKey = 'ratelimit::'
+		if (ip['type'] === 4) ratelimitKey += ip.long()
+		else {
+			// strip the ipv6 to a /64
+			const subnet = new network.Subnet(`${ip.long()}/64`)
+
+			ratelimitKey += subnet.first().long()
+		}
+
+		const count = await cache.incr(ratelimitKey)
+		if (count === 1) await cache.expire(ratelimitKey, Math.floor(time(1).m() / 1000))
+
+		const expires = await cache.ttl(ratelimitKey)
+
+		headers.set('X-RateLimit-Limit', env.RATELIMIT_PER_MINUTE)
+		headers.set('X-RateLimit-Remaining', env.RATELIMIT_PER_MINUTE - count)
+		headers.set('X-RateLimit-Reset', expires)
+
+		if (count > env.RATELIMIT_PER_MINUTE) request.end = true
+	}
 
 	return request
 }
