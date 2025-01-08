@@ -216,6 +216,15 @@ const extraTypeInfos: Record<schema.ServerType, {
 		description: 'A fork of Purpur that aims to be more performant and have better APIs.',
 		categories: ['plugins'],
 		compatibility: ['spigot', 'paper', 'purpur']
+	}, ASPAPER: {
+		name: 'ASPaper',
+		color: '#FF821C',
+		homepage: 'https://github.com/InfernalSuite/AdvancedSlimePaper',
+		deprecated: false,
+		experimental: false,
+		description: 'Advanced Slime Paper is a fork of Paper implementing the Slime Region Format developed by Hypixel.',
+		categories: ['plugins'],
+		compatibility: ['spigot', 'paper']
 	}
 }
 

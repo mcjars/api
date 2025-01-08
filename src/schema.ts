@@ -19,7 +19,8 @@ export const types = [
 	'ARCLIGHT',
 	'SPONGE',
 	'LEAVES',
-	'CANVAS'
+	'CANVAS',
+	'ASPAPER'
 ] as const
 
 export const formats = [
