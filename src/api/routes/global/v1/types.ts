@@ -1,4 +1,5 @@
 import { globalAPIRouter } from "@/api"
+import { object } from "@rjweb/utils"
 
 export = new globalAPIRouter.Path('/')
 	.http('GET', '/', (http) => http
@@ -17,57 +18,7 @@ export = new globalAPIRouter.Path('/')
 									}, types: {
 										type: 'object',
 										additionalProperties: {
-											type: 'object',
-											properties: {
-												icon: {
-													type: 'string'
-												}, builds: {
-													type: 'number'
-												}, versions: {
-													type: 'object',
-													properties: {
-														minecraft: {
-															type: 'number'
-														}, project: {
-															type: 'number'
-														}
-													}, required: ['minecraft', 'project']
-												}, name: {
-													type: 'string'
-												}, color: {
-													type: 'string'
-												}, homepage: {
-													type: 'string'
-												}, deprecated: {
-													type: 'boolean'
-												}, experimental: {
-													type: 'boolean'
-												}, description: {
-													type: 'string'
-												}, categories: {
-													type: 'array',
-													items: {
-														type: 'string'
-													}
-												}, compatibility: {
-													type: 'array',
-													items: {
-														type: 'string'
-													}
-												}
-											}, required: [
-												'icon',
-												'builds',
-												'versions',
-												'name',
-												'color',
-												'homepage',
-												'deprecated',
-												'experimental',
-												'description',
-												'categories',
-												'compatibility'
-											]
+											$ref: '#/components/schemas/typeInformation'
 										}
 									}
 								}, required: ['success', 'types']
@@ -80,7 +31,7 @@ export = new globalAPIRouter.Path('/')
 		.onRequest(async(ctr) => {
 			return ctr.print({
 				success: true,
-				types: await ctr["@"].database.types()
+				types: object.pick(await ctr["@"].database.types(), ctr["@"].database.establishedTypes)
 			})
 		})
 	)

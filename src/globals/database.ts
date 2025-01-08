@@ -17,6 +17,27 @@ export type ReturnRow = RawBuild & {
 	version2_created: string
 }
 
+const establishedTypes: schema.ServerType[] = [
+	'VANILLA',
+	'PAPER',
+	'PUFFERFISH',
+	'SPIGOT',
+	'FOLIA',
+	'PURPUR',
+	'WATERFALL',
+	'VELOCITY',
+	'FABRIC',
+	'BUNGEECORD',
+	'QUILT',
+	'FORGE',
+	'NEOFORGE',
+	'MOHIST',
+	'ARCLIGHT',
+	'SPONGE',
+	'LEAVES',
+	'CANVAS'
+] as const
+
 const compatibility = [
 	'spigot', 'paper', 'folia', 'purpur',
 	'fabric', 'forge', 'neoforge', 'bungeecord',
@@ -48,7 +69,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 		homepage: 'https://papermc.io/software/paper',
 		deprecated: false,
 		experimental: false,
-		description: 'A high performance fork of the Spigot Minecraft Server.',
+		description: 'Paper is a Minecraft game server based on Spigot, designed to greatly improve performance and offer more advanced features and API.',
 		categories: ['plugins'],
 		compatibility: ['spigot', 'paper']
 	}, PUFFERFISH: {
@@ -75,7 +96,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 		homepage: 'https://papermc.io/software/folia',
 		deprecated: false,
 		experimental: true,
-		description: 'A fork of Paper that uses regional multithreading for high player counts.',
+		description: 'Folia is a fork of Paper that adds regionized multithreading to the server.',
 		categories: ['plugins'],
 		compatibility: ['folia']
 	}, PURPUR: {
@@ -84,7 +105,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 		homepage: 'https://purpurmc.org',
 		deprecated: false,
 		experimental: false,
-		description: 'A fork of Paper that aims to be more feature rich, adding patches from pufferfish too.',
+		description: 'Purpur is a drop-in replacement for Paper servers designed for configurability, new fun and exciting gameplay features.',
 		categories: ['plugins'],
 		compatibility: ['spigot', 'paper', 'purpur']
 	}, WATERFALL: {
@@ -93,7 +114,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 		homepage: 'https://papermc.io/software/waterfall',
 		deprecated: true,
 		experimental: false,
-		description: 'A fork of BungeeCord that aims to be more performant.',
+		description: 'Waterfall is the BungeeCord fork that aims to improve performance and stability.',
 		categories: ['plugins', 'proxy'],
 		compatibility: ['bungeecord']
 	}, VELOCITY: {
@@ -102,7 +123,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 		homepage: 'https://papermc.io/software/velocity',
 		deprecated: false,
 		experimental: false,
-		description: 'A modern, high performance, extensible proxy server alternative for waterfall.',
+		description: 'A modern, high performance, extensible proxy server alternative for Waterfall.',
 		categories: ['plugins', 'proxy'],
 		compatibility: ['velocity']
 	}, FABRIC: {
@@ -129,7 +150,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 		homepage: 'https://quiltmc.org',
 		deprecated: false,
 		experimental: true,
-		description: 'A fork of Fabric that aims to be more feature rich and have easier apis.',
+		description: 'The Quilt project is an open-source, community-driven modding toolchain designed for Minecraft.',
 		categories: ['modded'],
 		compatibility: ['fabric', 'quilt']
 	}, FORGE: {
@@ -147,7 +168,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 		homepage: 'https://neoforged.net',
 		deprecated: false,
 		experimental: false,
-		description: 'A cousin of Forge that aims to be more performant and have better modding apis.',
+		description: 'NeoForge is a free, open-source, community-oriented modding API for Minecraft.',
 		categories: ['modded'],
 		compatibility: ['forge', 'neoforge']
 	}, MOHIST: {
@@ -156,7 +177,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 		homepage: 'https://mohistmc.com/software/mohist',
 		deprecated: true,
 		experimental: false,
-		description: 'A variation of forge/neoforge that allows loading spigot plugins next to mods.',
+		description: 'A variation of Forge/NeoForge that allows loading Spigot plugins next to mods.',
 		categories: ['modded', 'plugins'],
 		compatibility: ['forge', 'spigot', 'paper']
 	}, ARCLIGHT: {
@@ -183,7 +204,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 		homepage: 'https://leavesmc.org/software/leaves',
 		deprecated: false,
 		experimental: false,
-		description: 'A fork of paper that aims to restore vanilla behavior and add new features.',
+		description: 'Leaves is a Minecraft game server based on Paper, aimed at repairing broken vanilla properties.',
 		categories: ['plugins'],
 		compatibility: ['spigot', 'paper']
 	}, CANVAS: {
@@ -192,7 +213,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 		homepage: 'https://github.com/CraftCanvasMC/Canvas',
 		deprecated: false,
 		experimental: true,
-		description: 'A fork of purpur that aims to be more performant and have better apis.',
+		description: 'A fork of Purpur that aims to be more performant and have better APIs.',
 		categories: ['plugins'],
 		compatibility: ['spigot', 'paper', 'purpur']
 	}
@@ -402,6 +423,8 @@ type DbWithoutWrite = Omit<typeof db, 'insert' | 'update' | 'delete'>
 export default Object.assign(db as DbWithoutWrite, {
 	write: writeDb,
 	schema,
+
+	establishedTypes,
 
 	prepare: {
 		build<Data extends Record<string, any> | null | undefined>(raw: Data): Data extends null ? null : Data extends undefined ? null : Data {

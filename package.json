@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "2.4.8",
+  "version": "2.5.0",
   "scripts": {
     "build": "rm -rf lib && esbuild `find src \\( -name '*.ts' -o -name '*.tsx' \\)` --platform='node' --sourcemap --ignore-annotations --format='cjs' --target='es2022' --outdir='lib' && esbuild src/index.ts --platform='node' --sourcemap --ignore-annotations --format='cjs' --target='es2022' --outdir='lib' --banner:js='require(\"module-alias\").addAlias(\"@\", __dirname);'",
     "kit": "drizzle-kit",
@@ -15,7 +15,7 @@
     "@rjweb/runtime-node": "^1.1.1",
     "@rjweb/sentry": "^2.1.5",
     "@rjweb/utils": "^1.12.27",
-    "@sentry/node": "^8.47.0",
+    "@sentry/node": "^8.48.0",
     "ansi-colors": "^4.1.3",
     "drizzle-orm": "^0.38.3",
     "ioredis": "^5.4.2",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^22.10.2",
+    "@types/node": "^22.10.5",
     "@types/pg": "^8.11.10",
     "drizzle-kit": "^0.30.1",
     "esbuild": "^0.24.2",

@@ -6,6 +6,60 @@ server.schema('types', {
 	enum: Array.from(types)
 })
 
+server.schema('typeInformation', {
+	type: 'object',
+	properties: {
+		icon: {
+			type: 'string'
+		}, builds: {
+			type: 'number'
+		}, versions: {
+			type: 'object',
+			properties: {
+				minecraft: {
+					type: 'number'
+				}, project: {
+					type: 'number'
+				}
+			}, required: ['minecraft', 'project']
+		}, name: {
+			type: 'string'
+		}, color: {
+			type: 'string'
+		}, homepage: {
+			type: 'string'
+		}, deprecated: {
+			type: 'boolean'
+		}, experimental: {
+			type: 'boolean'
+		}, description: {
+			type: 'string'
+		}, categories: {
+			type: 'array',
+			items: {
+				type: 'string'
+			}
+		}, compatibility: {
+			type: 'array',
+			items: {
+				type: 'string'
+			}
+		}
+	}, required: [
+		'icon',
+		'builds',
+		'versions',
+		'name',
+		'color',
+		'homepage',
+		'deprecated',
+		'experimental',
+		'description',
+		'categories',
+		'compatibility'
+	]
+})
+
 server.schema('build', {
   type: 'object',
   properties: {
