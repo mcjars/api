@@ -268,6 +268,16 @@ export = new globalAPIRouter.Path('/')
 			const [ build, latest, configs ] = await lookupBuild(data.data)
 			if (!build || !latest) return ctr.status(ctr.$status.NOT_FOUND).print({ success: false, errors: ['Build not found'] })
 
+			ctr["@"].data.type = 'lookup'
+			ctr["@"].data.build = {
+				id: build.id,
+				type: build.type,
+				versionId: build.version_id,
+				projectVersionId: build.project_version_id,
+				buildNumber: build.build_number,
+				java: latest.version_java
+			}
+
 			return ctr.print({
 				success: true,
 				build: fields.length > 0 ? object.pick(database.prepare.rawBuild(build), fields) : database.prepare.rawBuild(build),

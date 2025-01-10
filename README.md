@@ -22,11 +22,10 @@ cd api
 npm i -g pnpm
 pnpm i
 
-# fill out the configs
+# fill out the config
 cp .env.example .env
-cp drizzle.config.json.example drizzle.config.json
 
-# after filling out the configs
+# after filling out the config
 pnpm kit migrate
 
 # start the dev server on port 8000
