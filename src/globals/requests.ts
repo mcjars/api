@@ -32,7 +32,7 @@ const pending: Request[] = [],
 /**
  * Log a new request
  * @since 1.18.0
-*/ export async function log(method: schema.Method, route: string | RegExp, body: JSONParsed | null, ip: network.IPAddress, origin: string, userAgent: string, organization: number | null, data: Record<string, any> | null, headers: ValueCollection<string, string, Content>): Promise<Request> {
+*/ export async function log(method: schema.Method, route: string | RegExp, body: JSONParsed | null, ip: network.IPAddress, origin: string, userAgent: string, organization: number | null, headers: ValueCollection<string, string, Content>): Promise<Request> {
 	const request: Request = {
 		id: string.generate({ length: 12 }),
 		organizationId: organization ?? null,
@@ -47,7 +47,7 @@ const pending: Request[] = [],
 		ip: ip.usual(),
 		continent: null,
 		country: null,
-		data,
+		data: {},
 		userAgent,
 		created: new Date()
 	}
@@ -77,9 +77,10 @@ const pending: Request[] = [],
 /**
  * Finish a request
  * @since 1.18.0
-*/ export function finish(request: Request, status: number, ms: number): void {
+*/ export function finish(request: Request, status: number, ms: number, data: Record<string, any>): void {
 	request.status = status
 	request.time = Math.round(ms)
+	request.data = data
 
 	pending.splice(pending.indexOf(request), 1)
 	processing.push(request)

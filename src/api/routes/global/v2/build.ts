@@ -242,7 +242,20 @@ export = new globalAPIRouter.Path('/')
 			if (!data.success) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: data.error.errors.map((err) => `${err.path.join('.')}: ${err.message}`) })
 
 			if (Array.isArray(data.data)) {
-				const builds = await Promise.all(data.data.map(lookupBuild))
+				const builds = await Promise.all(data.data.map(lookupBuild)),
+					firstBuild = builds.find((build) => build[0] && build[1])
+
+				if (firstBuild?.[0] && firstBuild?.[1]) {
+					ctr["@"].data.type = 'lookup'
+					ctr["@"].data.build = {
+						id: firstBuild[0].id,
+						type: firstBuild[0].type,
+						versionId: firstBuild[0].version_id,
+						projectVersionId: firstBuild[0].project_version_id,
+						buildNumber: firstBuild[0].build_number,
+						java: firstBuild[1].version_java
+					}
+				}
 
 				return ctr.print({
 					success: true,

@@ -126,7 +126,6 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 				ctr.client.origin,
 				ctr.client.userAgent,
 				ctr["@"].organization?.id ?? null,
-				ctr["@"].data,
 				ctr.headers
 			)
 
@@ -140,7 +139,7 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 	})
 	.httpRequestFinish((ctr) => {
 		if (ctr["@"].request) {
-			requests.finish(ctr["@"].request, ctr.context.response.status, ctr.context.elapsed())
+			requests.finish(ctr["@"].request, ctr.context.response.status, ctr.context.elapsed(), ctr["@"].data)
 		}
 	})
 
