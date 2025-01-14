@@ -1,7 +1,6 @@
 import { globalAPIRouter } from "@/api"
-import { and, asc, count, countDistinct, desc, eq, gte, isNotNull, like, lte, notLike, sql } from "drizzle-orm"
+import { and, asc, count, countDistinct, desc, eq, gte, isNotNull, lte, notLike, sql } from "drizzle-orm"
 import { object, time } from "@rjweb/utils"
-import { ServerType, types } from "@/schema"
 
 export = new globalAPIRouter.Path('/')
 	.http('GET', '/versions', (http) => http
@@ -218,8 +217,8 @@ export = new globalAPIRouter.Path('/')
 			}
 		})
 		.onRequest(async(ctr) => {
-			const type = ctr.params.get('type', '').toUpperCase() as ServerType
-			if (!types.includes(type)) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
+			const type = ctr["@"].database.matchType(ctr.params.get('type', ''))
+			if (!type) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
 
 			const selector = type === 'VELOCITY' ? 'projectVersionId' : 'versionId'
 
@@ -322,8 +321,8 @@ export = new globalAPIRouter.Path('/')
 			}
 		})
 		.onRequest(async(ctr) => {
-			const type = ctr.params.get('type', '').toUpperCase() as ServerType
-			if (!types.includes(type)) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
+			const type = ctr["@"].database.matchType(ctr.params.get('type', ''))
+			if (!type) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
 
 			const year = parseInt(ctr.params.get('year', '')),
 				month = parseInt(ctr.params.get('month', ''))

@@ -58,14 +58,15 @@ export = new globalAPIRouter.Path('/')
 			}
 		})
 		.onRequest(async(ctr) => {
-			const [ hashes, requests, builds, db ] = await ctr["@"].cache.use('stats::all', () => Promise.all([
+			const [ hashes, requests, builds ] = await ctr["@"].cache.use('stats::all', () => Promise.all([
 				ctr["@"].database.select({
 					hashes: count()
 				})
 					.from(ctr["@"].database.schema.buildHashes)
 					.then((r) => r[0]),
 				ctr["@"].database.select({
-					requests: count()
+					requests: count(),
+					size: sql<string>`pg_database_size(current_database())`
 				})
 					.from(ctr["@"].database.schema.requests)
 					.then((r) => r[0]),
@@ -75,9 +76,7 @@ export = new globalAPIRouter.Path('/')
 					totalZipSize: sum(ctr["@"].database.schema.builds.zipSize)
 				})
 					.from(ctr["@"].database.schema.builds)
-					.then((r) => r[0]),
-				ctr["@"].database.execute<{ size: string }>(sql`SELECT pg_database_size(current_database()) AS size`)
-					.then((r) => r.rows[0])
+					.then((r) => r[0])
 			]), time(10).m())
 
 			return ctr.print({
@@ -87,7 +86,7 @@ export = new globalAPIRouter.Path('/')
 					hashes: hashes?.hashes ?? 0,
 					requests: requests?.requests ?? 0,
 					size: {
-						database: Number(db?.size ?? 0)
+						database: Number(requests?.size ?? 0)
 					}, total: {
 						jarSize: Number(builds?.totalJarSize ?? 0),
 						zipSize: Number(builds?.totalZipSize ?? 0)

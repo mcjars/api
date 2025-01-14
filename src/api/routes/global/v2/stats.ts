@@ -1,6 +1,5 @@
 import { globalAPIRouter } from "@/api"
 import { and, avg, count, eq, gte, lte, sql, sum, sumDistinct } from "drizzle-orm"
-import { types, ServerType } from "@/schema"
 import { time } from "@rjweb/utils"
 
 export = new globalAPIRouter.Path('/')
@@ -309,8 +308,8 @@ export = new globalAPIRouter.Path('/')
 			]
 		})
 		.onRequest(async(ctr) => {
-			const type = ctr.params.get('type', '').toUpperCase() as ServerType
-			if (!types.includes(type)) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
+			const type = ctr["@"].database.matchType(ctr.params.get('type', ''))
+			if (!type) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
 
 			const stats = await ctr["@"].cache.use(`stats::${type}`, () => ctr["@"].database.select({
 					builds: count(),
@@ -433,8 +432,8 @@ export = new globalAPIRouter.Path('/')
 			]
 		})
 		.onRequest(async(ctr) => {
-			const type = ctr.params.get('type', '').toUpperCase() as ServerType
-			if (!types.includes(type)) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
+			const type = ctr["@"].database.matchType(ctr.params.get('type', ''))
+			if (!type) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
 
 			const year = parseInt(ctr.params.get('year', '')),
 				month = parseInt(ctr.params.get('month', ''))
@@ -562,8 +561,8 @@ export = new globalAPIRouter.Path('/')
 			]
 		})
 		.onRequest(async(ctr) => {
-			const type = ctr.params.get('type', '').toUpperCase() as ServerType
-			if (!types.includes(type)) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
+			const type = ctr["@"].database.matchType(ctr.params.get('type', ''))
+			if (!type) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
 
 			const version = ctr.params.get('version', ''),
 				location = await ctr["@"].database.version(version, type)
@@ -705,8 +704,8 @@ export = new globalAPIRouter.Path('/')
 			]
 		})
 		.onRequest(async(ctr) => {
-			const type = ctr.params.get('type', '').toUpperCase() as ServerType
-			if (!types.includes(type)) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
+			const type = ctr["@"].database.matchType(ctr.params.get('type', ''))
+			if (!type) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
 
 			const version = ctr.params.get('version', ''),
 				location = await ctr["@"].database.version(version, type)

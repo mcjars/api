@@ -13,7 +13,7 @@ export async function lookup(ips: string[]): Promise<Lookup[]> {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			'User-Agent': `Minecraft Version Worker/${ver} https://mcjars.app |-> me@rjns.dev`
+			'User-Agent': `Minecraft Version API/${ver} https://mcjars.app |-> me@rjns.dev`
 		}, body: JSON.stringify(ips.map((ip) => ({
 			query: ip,
 			fields: 'continentCode,countryCode,query'

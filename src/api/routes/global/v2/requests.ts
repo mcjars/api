@@ -1,6 +1,5 @@
 import { globalAPIRouter } from "@/api"
 import { and, count, countDistinct, desc, eq, gte, inArray, like, lte, notLike, sql } from "drizzle-orm"
-import { types, ServerType } from "@/schema"
 import { object, time } from "@rjweb/utils"
 
 export = new globalAPIRouter.Path('/')
@@ -292,8 +291,8 @@ export = new globalAPIRouter.Path('/')
 			]
 		})
 		.onRequest(async(ctr) => {
-			const type = ctr.params.get('type', '').toUpperCase() as ServerType
-			if (!types.includes(type)) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
+			const type = ctr["@"].database.matchType(ctr.params.get('type', ''))
+			if (!type) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
 
 			const [ requests, mcVersions, projectVersions ] = await Promise.all([
 				ctr["@"].cache.use(`requests::${type}`, () => ctr["@"].database.select({
@@ -442,8 +441,8 @@ export = new globalAPIRouter.Path('/')
 			]
 		})
 		.onRequest(async(ctr) => {
-			const type = ctr.params.get('type', '').toUpperCase() as ServerType
-			if (!types.includes(type)) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
+			const type = ctr["@"].database.matchType(ctr.params.get('type', ''))
+			if (!type) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
 
 			const year = parseInt(ctr.params.get('year', '')),
 				month = parseInt(ctr.params.get('month', ''))

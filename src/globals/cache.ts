@@ -25,20 +25,20 @@ redis.once('connect', () => {
 
 export default Object.assign(redis, {
 	async use<Run extends () => Promise<any> | any>(key: string, run: Run, expire: number = time(3).s()): Promise<Awaited<ReturnType<Run>>> {
-		const mapResult = localCache.get(`internal-middlewares::cache::${key}`)
+		const mapResult = localCache.get(key)
 		if (mapResult) return mapResult
 
-		const redisResult = await redis.get(`internal-middlewares::cache::${key}`)
+		const redisResult = await redis.get(key)
 		if (redisResult) return JSON.parse(redisResult)
 
 		const runResult = await Promise.resolve(run())
-		if (!expire) await redis.set(`internal-middlewares::cache::${key}`, JSON.stringify(runResult))
-		else if (expire > time(15).s()) await redis.set(`internal-middlewares::cache::${key}`, JSON.stringify(runResult), 'EX', Math.ceil(expire / 1000))
+		if (!expire) await redis.set(key, JSON.stringify(runResult))
+		else if (expire > time(15).s()) await redis.set(key, JSON.stringify(runResult), 'EX', Math.ceil(expire / 1000))
 		else {
-			localCache.set(`internal-middlewares::cache::${key}`, runResult)
+			localCache.set(key, runResult)
 
 			setTimeout(() => {
-				localCache.delete(`internal-middlewares::cache::${key}`)
+				localCache.delete(key)
 			}, expire)
 		}
 
@@ -47,14 +47,14 @@ export default Object.assign(redis, {
 
 	local: {
 		use<Run extends () => any>(key: string, run: Run, expire: number = time(3).s()): ReturnType<Run> {
-			const mapResult = localCache.get(`internal-middlewares::cache::${key}`)
+			const mapResult = localCache.get(key)
 			if (mapResult) return mapResult
 
 			const runResult = run()
-			localCache.set(`internal-middlewares::cache::${key}`, runResult)
+			localCache.set(key, runResult)
 
 			if (!!expire) setTimeout(() => {
-				localCache.delete(`internal-middlewares::cache::${key}`)
+				localCache.delete(key)
 			}, expire)
 
 			return runResult

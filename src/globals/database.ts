@@ -524,6 +524,16 @@ export default Object.assign(db as DbWithoutWrite, {
 		} as const
 	},
 
+	matchType(rawType: string): schema.ServerType | null {
+		try {
+			const type = decodeURIComponent(rawType).trim().toUpperCase().replace(/ |-/g, '_')
+
+			return schema.types.find((t) => t === type) ?? null
+		} catch {
+			return null
+		}
+	},
+
 	formatConfig(file: string, rawValue: string) {
 		let value = ''
 
