@@ -231,107 +231,128 @@ const extraTypeInfos: Record<schema.ServerType, {
 export const configs: Record<string, {
 	type: schema.ServerType
 	format: schema.Format
+	aliases: string[]
 }> = {
 	// Vanilla
 	'server.properties': {
 		type: 'VANILLA',
-		format: 'PROPERTIES'
+		format: 'PROPERTIES',
+		aliases: ['server.properties']
 	},
 
 	// Spigot
 	'spigot.yml': {
 		type: 'SPIGOT',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['spigot.yml']
 	}, 'bukkit.yml': {
 		type: 'SPIGOT',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['bukkit.yml']
 	},
 
 	// Paper
 	'paper.yml': {
 		type: 'PAPER',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['paper.yml']
 	}, 'config/paper-global.yml': {
 		type: 'PAPER',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['config/paper-global.yml', 'paper-global.yml']
 	}, 'config/paper-world-defaults.yml': {
 		type: 'PAPER',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['config/paper-world-defaults.yml', 'paper-world-defaults.yml']
 	},
 
 	// Pufferfish
 	'pufferfish.yml': {
 		type: 'PUFFERFISH',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['pufferfish.yml']
 	},
 
 	// Purpur
 	'purpur.yml': {
 		type: 'PURPUR',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['purpur.yml']
 	},
 
 	// Leaves
 	'leaves.yml': {
 		type: 'LEAVES',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['leaves.yml']
 	},
 
 	// Canvas
 	'canvas.yml': {
 		type: 'CANVAS',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['canvas.yml']
 	},
 
 	// Sponge
 	'config/sponge/global.conf': {
 		type: 'SPONGE',
-		format: 'CONF'
+		format: 'CONF',
+		aliases: ['config/sponge/global.conf', 'global.conf']
 	}, 'config/sponge/sponge.conf': {
 		type: 'SPONGE',
-		format: 'CONF'
+		format: 'CONF',
+		aliases: ['config/sponge/sponge.conf', 'sponge.conf']
 	}, 'config/sponge/tracker.conf': {
 		type: 'SPONGE',
-		format: 'CONF'
+		format: 'CONF',
+		aliases: ['config/sponge/tracker.conf', 'tracker.conf']
 	},
 
 	// Arclight
 	'arclight.conf': {
 		type: 'ARCLIGHT',
-		format: 'CONF'
+		format: 'CONF',
+		aliases: ['arclight.conf']
 	},
 
 	// NeoForge
 	'config/neoforge-server.toml': {
 		type: 'NEOFORGE',
-		format: 'TOML'
+		format: 'TOML',
+		aliases: ['config/neoforge-server.toml', 'neoforge-server.toml']
 	}, 'config/neoforge-common.toml': {
 		type: 'NEOFORGE',
-		format: 'TOML'
+		format: 'TOML',
+		aliases: ['config/neoforge-common.toml', 'neoforge-common.toml']
 	},
 
 	// Mohist
 	'mohist-config/mohist.yml': {
 		type: 'MOHIST',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['mohist-config/mohist.yml', 'mohist.yml']
 	},
 
 	// Velocity
 	'velocity.toml': {
 		type: 'VELOCITY',
-		format: 'TOML'
+		format: 'TOML',
+		aliases: ['velocity.toml']
 	},
 
 	// BungeeCord
 	'config.yml': {
 		type: 'BUNGEECORD',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['config.yml']
 	},
 
 	// Waterfall
 	'waterfall.yml': {
 		type: 'WATERFALL',
-		format: 'YAML'
+		format: 'YAML',
+		aliases: ['waterfall.yml']
 	},
 }
 

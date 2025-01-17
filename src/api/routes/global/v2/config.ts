@@ -18,7 +18,8 @@ const buildsWithConfigBestMatch = database.select({
 	))
 	.where(and(
 		eq(database.schema.configs.type, sql.placeholder('type')),
-		eq(database.schema.configs.format, sql.placeholder('format'))
+		eq(database.schema.configs.format, sql.placeholder('format')),
+		eq(database.schema.configs.location, sql.placeholder('location'))
 	))
 	.orderBy(desc(sql`similarity`))
 	.limit(3)
@@ -34,6 +35,7 @@ const buildsWithConfigContains = database.select({
 	.where(and(
 		eq(database.schema.configs.type, sql.placeholder('type')),
 		eq(database.schema.configs.format, sql.placeholder('format')),
+		eq(database.schema.configs.location, sql.placeholder('location')),
 		like(database.schema.configValues.value, sql.placeholder('contains'))
 	))
 	.innerJoin(database.schema.builds, and(
@@ -43,6 +45,8 @@ const buildsWithConfigContains = database.select({
 	.groupBy(database.schema.configValues.id, database.schema.builds.id)
 	.limit(3)
 	.prepare('builds_with_config_contains')
+
+const aliasToConfigMap = Object.fromEntries(Object.entries(configs).flatMap(([ file, config ]) => config.aliases.map((alias) => [alias, file])))
 
 export = new globalAPIRouter.Path('/')
 	.http('POST', '/', (http) => http
@@ -113,7 +117,7 @@ export = new globalAPIRouter.Path('/')
 		})
 		.onRequest(async(ctr) => {
 			const data = z.object({
-				file: z.string().refine((file) => file in configs, `file must be one of: ${Object.keys(configs).join(', ')}`),
+				file: z.string().refine((file) => file in aliasToConfigMap, `file must be one of: ${Object.keys(configs).join(', ')}`).transform((file) => aliasToConfigMap[file]),
 				config: z.string().transform((str) => str.replaceAll('\\n', '\n'))
 			}).safeParse(await ctr.$body().json().catch(() => null))
 
@@ -125,15 +129,12 @@ export = new globalAPIRouter.Path('/')
 			if (!data.success) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: data.error.errors.map((err) => `${err.path.join('.')}: ${err.message}`) })
 
 			const formatted = database.formatConfig(data.data.file, data.data.config),
-				format = configs[data.data.file].format
+				config = configs[data.data.file]
 
 			const valueMatches = await ctr["@"].cache.use(`config::${string.hash(formatted, { algorithm: 'sha256' })}`, async() => {
-				const file = Object.keys(configs).find((file) => file.endsWith(data.data.file))
-				if (!file) return []
-
 				let contains: string | null = null
 
-				if (data.data.file !== 'pufferfish.yml') switch (format) {
+				if (data.data.file !== 'pufferfish.yml') switch (config.format) {
 					case "YAML": {
 						if (!contains) {
 							const configVersion = formatted.match(/config-version:\s*(.+)/)?.[1]
@@ -160,16 +161,18 @@ export = new globalAPIRouter.Path('/')
 
 				if (!contains) {
 					return buildsWithConfigBestMatch.execute({
-						type: configs[file].type,
+						type: config.type,
 						config: formatted,
-						format
+						location: data.data.file,
+						format: config.format
 					})
 				}
 
 				return buildsWithConfigContains.execute({
-					type: configs[file].type,
+					type: config.type,
 					contains: `%${contains}%`,
-					format
+					location: data.data.file,
+					format: config.format
 				})
 			}, time(1).h())
 
