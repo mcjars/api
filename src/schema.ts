@@ -84,11 +84,14 @@ export const organizationKeys = pgTable('organization_keys', {
 
 export const organizationSubusers = pgTable('organization_subusers', {
 	organizationId: integer('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
-	userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' })
+	userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+	pending: boolean('pending').default(true).notNull(),
+	created: timestamp('created').default(sql`now()`).notNull()
 }, (organizationSubusers) => [
 	primaryKey({ name: 'organizationSubusers_pk', columns: [organizationSubusers.organizationId, organizationSubusers.userId] }),
 	index('organizationSubusers_organization_idx').on(organizationSubusers.organizationId),
-	index('organizationSubusers_user_idx').on(organizationSubusers.userId)
+	index('organizationSubusers_user_idx').on(organizationSubusers.userId),
+	index('organizationSubusers_userId_pending_idx').on(organizationSubusers.userId, organizationSubusers.pending)
 ])
 
 export const webhooks = pgTable('webhooks', {

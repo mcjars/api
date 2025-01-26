@@ -242,7 +242,10 @@ export const userOrganizationValidator = new server.Validator()
 			})
 				.from(ctr["@"].database.schema.organizations)
 				.innerJoin(ctr["@"].database.schema.users, eq(ctr["@"].database.schema.organizations.ownerId, ctr["@"].database.schema.users.id))
-				.leftJoin(ctr["@"].database.schema.organizationSubusers, eq(ctr["@"].database.schema.organizations.id, ctr["@"].database.schema.organizationSubusers.organizationId))
+				.leftJoin(ctr["@"].database.schema.organizationSubusers, and(
+					eq(ctr["@"].database.schema.organizations.id, ctr["@"].database.schema.organizationSubusers.organizationId),
+					eq(ctr["@"].database.schema.organizationSubusers.pending, false)
+				))
 				.where(and(
 					or(
 						eq(ctr["@"].database.schema.organizations.ownerId, ctr["@"].user.id),

@@ -19,7 +19,17 @@ export = new userAPIRouter.Path('/')
 									users: {
 										type: 'array',
 										items: {
-											$ref: '#/components/schemas/user'
+											type: 'object',
+											properties: {
+												user: {
+													$ref: '#/components/schemas/user'
+												}, pending: {
+													type: 'boolean'
+												}, created: {
+													type: 'string',
+													format: 'date-time'
+												}
+											}, required: ['user', 'pending', 'created']
 										}
 									}
 								}, required: ['success', 'users']
@@ -31,7 +41,9 @@ export = new userAPIRouter.Path('/')
 		})
 		.onRequest(async(ctr) => {
 			const users = await ctr["@"].database.select({
-				user: ctr["@"].database.schema.users
+				user: ctr["@"].database.schema.users,
+				pending: ctr["@"].database.schema.organizationSubusers.pending,
+				created: ctr["@"].database.schema.organizationSubusers.created
 			})
 				.from(ctr["@"].database.schema.organizationSubusers)
 				.where(eq(ctr["@"].database.schema.organizationSubusers.organizationId, ctr["@"].organization.id))
@@ -39,7 +51,7 @@ export = new userAPIRouter.Path('/')
 
 			return ctr.print({
 				success: true,
-				users: users.map((user) => ctr["@"].database.prepare.user(user.user))
+				users: users.map((user) => Object.assign(user, { user: ctr["@"].database.prepare.user(user.user, user.pending) }))
 			})
 		})
 	)

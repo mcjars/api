@@ -509,14 +509,14 @@ export default Object.assign(db as DbWithoutWrite, {
 			} as any
 		},
 
-		user<Data extends Record<string, any> | null | undefined>(raw: Data): Data extends null ? null : Data extends undefined ? null : Data {
+		user<Data extends Record<string, any> | null | undefined>(raw: Data, hideEmail: boolean = false): Data extends null ? null : Data extends undefined ? null : Data {
 			if (!raw) return null as any
 
 			return {
 				id: raw.id,
 				name: raw.name,
 				avatar: `https://avatars.githubusercontent.com/u/${raw.githubId}`,
-				email: raw.email,
+				email: hideEmail ? 'hidden@email.com' : raw.email,
 				login: raw.login
 			} as any
 		}

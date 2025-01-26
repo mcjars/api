@@ -26,8 +26,13 @@ export = new userAPIRouter.Path('/')
 												items: {
 													$ref: '#/components/schemas/organization'
 												}
+											}, invites: {
+												type: 'array',
+												items: {
+													$ref: '#/components/schemas/organization'
+												}
 											}
-										}, required: ['owned', 'member']
+										}, required: ['owned', 'member', 'invites']
 									}
 								}, required: ['success', 'organizations']
 							}
@@ -43,7 +48,8 @@ export = new userAPIRouter.Path('/')
 				icon: ctr["@"].database.schema.organizations.icon,
 				types: ctr["@"].database.schema.organizations.types,
 				created: ctr["@"].database.schema.organizations.created,
-				owner: ctr["@"].database.schema.users
+				owner: ctr["@"].database.schema.users,
+				pending: ctr["@"].database.schema.organizationSubusers.pending
 			})
 				.from(ctr["@"].database.schema.organizations)
 				.innerJoin(ctr["@"].database.schema.users, eq(ctr["@"].database.schema.organizations.ownerId, ctr["@"].database.schema.users.id))
@@ -61,7 +67,11 @@ export = new userAPIRouter.Path('/')
 						owner: ctr["@"].database.prepare.user(organization.owner)
 					})),
 
-					member: organizations.filter((organization) => organization.owner.id !== ctr["@"].user.id).map((organization) => Object.assign(organization, {
+					member: organizations.filter((organization) => organization.owner.id !== ctr["@"].user.id && !organization.pending).map((organization) => Object.assign(organization, {
+						owner: ctr["@"].database.prepare.user(organization.owner)
+					})),
+
+					invites: organizations.filter((organization) => organization.owner.id !== ctr["@"].user.id && organization.pending).map((organization) => Object.assign(organization, {
 						owner: ctr["@"].database.prepare.user(organization.owner)
 					}))
 				}
