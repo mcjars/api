@@ -24,7 +24,7 @@ const base = z.object({
 	GITHUB_CLIENT_SECRET: z.string().optional(),
 
 	S3_URL: z.string().optional(),
-	S3_SSL: z.union([ z.literal('true'), z.literal('false') ]).transform((str) => str === 'true'),
+	S3_SSL: z.union([ z.literal('true'), z.literal('false') ]).transform((str) => str === 'true').default('true'),
 	S3_BUCKET: z.string().optional(),
 	S3_REGION: z.string().optional(),
 	S3_HOST: z.string().optional(),
