@@ -5,6 +5,7 @@ import database from "@/globals/database"
 import env from "@/globals/env"
 import cache from "@/globals/cache"
 import github from "@/globals/github"
+import s3 from "@/globals/s3"
 import { Runtime } from "@rjweb/runtime-node"
 import * as requests from "@/globals/requests"
 import { ServerType, types } from "@/schema"
@@ -58,6 +59,7 @@ export const server = new Server(Runtime, {
 	database,
 	logger,
 	env,
+	s3,
 	cache,
 	github,
 	data: {} as Record<string, any>,

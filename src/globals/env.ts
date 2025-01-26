@@ -19,10 +19,19 @@ const base = z.object({
 
 	PORT: z.string().transform((str) => parseInt(str)).optional(),
 	RATELIMIT_PER_MINUTE: z.string().transform((str) => parseInt(str)).optional().default('120'),
-	S3_URL: z.string(),
 
 	GITHUB_CLIENT_ID: z.string().optional(),
 	GITHUB_CLIENT_SECRET: z.string().optional(),
+
+	S3_URL: z.string().optional(),
+	S3_SSL: z.union([ z.literal('true'), z.literal('false') ]).transform((str) => str === 'true'),
+	S3_BUCKET: z.string().optional(),
+	S3_REGION: z.string().optional(),
+	S3_HOST: z.string().optional(),
+	S3_PUBLIC_HOST: z.string().optional(),
+	S3_PORT: z.string().transform((str) => parseInt(str)).default('443'),
+	S3_ACCESS_KEY: z.string().optional(),
+	S3_SECRET_KEY: z.string().optional(),
 
 	LOG_LEVEL: z.enum(['none', 'info', 'debug']),
 	LOG_DIRECTORY: z.string().optional(),
