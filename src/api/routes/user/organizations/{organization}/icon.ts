@@ -76,8 +76,7 @@ export = new userAPIRouter.Path('/')
 					.where(eq(ctr["@"].database.schema.organizations.id, ctr["@"].organization.id))
 					.execute()
 
-				ctr["@"].organization.icon = url
-				await ctr["@"].cache.set(`organization::${ctr["@"].organization.id}`, JSON.stringify(ctr["@"].organization))
+				await ctr["@"].cache.del(`organization::${ctr["@"].organization.id}`)
 
 				return ctr.print({ success: true, url })
 			} catch {

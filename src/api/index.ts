@@ -35,7 +35,7 @@ export const server = new Server(Runtime, {
 		credentials: true,
 		allowAll: false,
 		origins: [env.APP_FRONTEND_URL ?? '*', '*'],
-		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+		methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 		headers: ['Authorization', 'Content-Type', 'Accept'],
 		exposeHeaders: ['Authorization', 'Content-Type', 'Accept']
 	}),
@@ -266,7 +266,7 @@ export const userOrganizationValidator = new server.Validator()
 				))
 				.limit(1)
 				.then((r) => r[0]),
-			time(5).m()
+			time(1).m()
 		)
 
 		if (!organization) return end(ctr.status(ctr.$status.UNAUTHORIZED).print({ success: false, errors: ['Unauthorized'] }))

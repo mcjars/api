@@ -135,9 +135,7 @@ export = new organizationAPIRouter.Path('/')
 			if (!data.success) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: data.error.errors.map((err) => `${err.path.join('.')}: ${err.message}`) })
 
 			await ctr["@"].database.write.update(ctr["@"].database.schema.organizations)
-				.set({
-					types: data.data.types as 'VANILLA'[]
-				})
+				.set({ types: data.data.types as 'VANILLA'[] })
 				.where(eq(ctr["@"].database.schema.organizations.id, ctr["@"].organization.id))
 
 			return ctr.print({ success: true })
