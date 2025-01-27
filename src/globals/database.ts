@@ -517,6 +517,7 @@ export default Object.assign(db as DbWithoutWrite, {
 				name: raw.name,
 				avatar: `https://avatars.githubusercontent.com/u/${raw.githubId}`,
 				email: hideEmail ? 'hidden@email.com' : raw.email,
+				admin: raw.admin,
 				login: raw.login
 			} as any
 		}

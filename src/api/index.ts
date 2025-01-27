@@ -9,7 +9,7 @@ import s3 from "@/globals/s3"
 import { Runtime } from "@rjweb/runtime-node"
 import * as requests from "@/globals/requests"
 import { ServerType, types } from "@/schema"
-import { and, eq, or } from "drizzle-orm"
+import { and, eq, or, sql } from "drizzle-orm"
 import { time } from "@rjweb/utils"
 import { sentry } from "@rjweb/sentry"
 import * as Sentry from "@sentry/node"
@@ -75,6 +75,8 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 			name: string
 			icon: string | null
 			types: ServerType[]
+			verified: boolean
+			public: boolean
 			created: Date
 		}
 
@@ -90,6 +92,8 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 				name: ctr["@"].database.schema.organizations.name,
 				icon: ctr["@"].database.schema.organizations.icon,
 				types: ctr["@"].database.schema.organizations.types,
+				verified: ctr["@"].database.schema.organizations.verified,
+				public: ctr["@"].database.schema.organizations.public,
 				created: ctr["@"].database.schema.organizations.created
 			})
 				.from(ctr["@"].database.schema.organizationKeys)
@@ -153,6 +157,7 @@ const userValidator = new server.Validator()
 			name: string | null
 			email: string
 			login: string
+			admin: boolean
 
 			sessionId: number
 		}
@@ -164,6 +169,7 @@ const userValidator = new server.Validator()
 		const user = await ctr["@"].cache.use(`session::${session}`, () => ctr["@"].database.select({
 				id: ctr["@"].database.schema.users.id,
 				githubId: ctr["@"].database.schema.users.githubId,
+				admin: ctr["@"].database.schema.users.admin,
 				name: ctr["@"].database.schema.users.name,
 				email: ctr["@"].database.schema.users.email,
 				login: ctr["@"].database.schema.users.login,
@@ -213,6 +219,8 @@ export const userOrganizationValidator = new server.Validator()
 			icon: string | null
 			types: ServerType[]
 			ownerId: number
+			verified: boolean
+			public: boolean
 			created: Date
 		}
 	}>()
@@ -237,6 +245,8 @@ export const userOrganizationValidator = new server.Validator()
 				name: ctr["@"].database.schema.organizations.name,
 				icon: ctr["@"].database.schema.organizations.icon,
 				types: ctr["@"].database.schema.organizations.types,
+				verified: ctr["@"].database.schema.organizations.verified,
+				public: ctr["@"].database.schema.organizations.public,
 				ownerId: ctr["@"].database.schema.organizations.ownerId,
 				created: ctr["@"].database.schema.organizations.created
 			})
@@ -249,7 +259,8 @@ export const userOrganizationValidator = new server.Validator()
 				.where(and(
 					or(
 						eq(ctr["@"].database.schema.organizations.ownerId, ctr["@"].user.id),
-						eq(ctr["@"].database.schema.organizationSubusers.userId, ctr["@"].user.id)
+						eq(ctr["@"].database.schema.organizationSubusers.userId, ctr["@"].user.id),
+						ctr["@"].user.admin ? sql`true` : sql`false`
 					),
 					eq(ctr["@"].database.schema.organizations.id, organizationId)
 				))

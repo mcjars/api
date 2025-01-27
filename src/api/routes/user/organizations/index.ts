@@ -1,6 +1,17 @@
 import { userAPIRouter } from "@/api"
 import { desc, eq, or } from "drizzle-orm"
 
+function uniqueOrganizations<T extends { id: number }>(organizations: T[]): T[] {
+	const ids = new Set(organizations.map((organization) => organization.id))
+
+	const result: T[] = []
+	for (const id of ids) {
+		result.push(organizations.find((organization) => organization.id === id)!)
+	}
+
+	return result
+}
+
 export = new userAPIRouter.Path('/')
 	.http('GET', '/', (http) => http
 		.document({
@@ -47,6 +58,8 @@ export = new userAPIRouter.Path('/')
 				name: ctr["@"].database.schema.organizations.name,
 				icon: ctr["@"].database.schema.organizations.icon,
 				types: ctr["@"].database.schema.organizations.types,
+				verified: ctr["@"].database.schema.organizations.verified,
+				public: ctr["@"].database.schema.organizations.public,
 				created: ctr["@"].database.schema.organizations.created,
 				owner: ctr["@"].database.schema.users,
 				pending: ctr["@"].database.schema.organizationSubusers.pending
@@ -63,15 +76,15 @@ export = new userAPIRouter.Path('/')
 			return ctr.print({
 				success: true,
 				organizations: {
-					owned: organizations.filter((organization) => organization.owner.id === ctr["@"].user.id).map((organization) => Object.assign(organization, {
+					owned: uniqueOrganizations(organizations.filter((organization) => organization.owner.id === ctr["@"].user.id)).map((organization) => Object.assign(organization, {
 						owner: ctr["@"].database.prepare.user(organization.owner)
 					})),
 
-					member: organizations.filter((organization) => organization.owner.id !== ctr["@"].user.id && !organization.pending).map((organization) => Object.assign(organization, {
+					member: uniqueOrganizations(organizations.filter((organization) => organization.owner.id !== ctr["@"].user.id && !organization.pending)).map((organization) => Object.assign(organization, {
 						owner: ctr["@"].database.prepare.user(organization.owner)
 					})),
 
-					invites: organizations.filter((organization) => organization.owner.id !== ctr["@"].user.id && organization.pending).map((organization) => Object.assign(organization, {
+					invites: uniqueOrganizations(organizations.filter((organization) => organization.owner.id !== ctr["@"].user.id && organization.pending)).map((organization) => Object.assign(organization, {
 						owner: ctr["@"].database.prepare.user(organization.owner)
 					}))
 				}

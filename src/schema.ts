@@ -60,8 +60,11 @@ export const organizations = pgTable('organizations', {
 	id: serial('id').primaryKey().notNull(),
 	ownerId: integer('owner_id').notNull().references(() => users.id, { onDelete: 'cascade' }).default(1),
 
+	verified: boolean('verified').default(false).notNull(),
+	public: boolean('public').default(false).notNull(),
+
 	name: varchar('name', { length: 255 }).notNull(),
-	icon: varchar('icon', { length: 255 }),
+	icon: varchar('icon', { length: 255 }).default('https://s3.mcjars.app/organization-icons/default.webp').notNull(),
 	types: jsonb('types').notNull().$type<ServerType[]>(),
 
 	created: timestamp('created').default(sql`now()`).notNull()
@@ -112,6 +115,8 @@ export const webhooks = pgTable('webhooks', {
 export const users = pgTable('users', {
 	id: serial('id').primaryKey().notNull(),
 	githubId: integer('github_id').notNull(),
+
+	admin: boolean('admin').default(false).notNull(),
 
 	name: varchar('name', { length: 255 }),
 	email: varchar('email', { length: 255 }).notNull(),

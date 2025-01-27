@@ -351,7 +351,7 @@ server.schema('user', {
 	type: 'object',
 	properties: {
 		id: {
-			type: 'number'
+			type: 'integer'
 		}, name: {
 			oneOf: [
 				{ type: 'string' },
@@ -363,8 +363,10 @@ server.schema('user', {
 			type: 'string'
 		}, avatar: {
 			type: 'string'
+		}, admin: {
+			type: 'boolean'
 		}
-	}, required: ['id', 'name', 'email', 'login', 'avatar']
+	}, required: ['id', 'name', 'email', 'login', 'avatar', 'admin']
 })
 
 server.schema('organization', {
@@ -384,11 +386,15 @@ server.schema('organization', {
 			items: {
 				$ref: '#/components/schemas/types'
 			}
+		}, verified: {
+			type: 'boolean'
+		}, public: {
+			type: 'boolean'
 		}, created: {
 			type: 'string',
 			format: 'date-time'
 		}, owner: {
 			$ref: '#/components/schemas/user'
 		}
-	}, required: ['id', 'name', 'types', 'owner']
+	}, required: ['id', 'name', 'types', 'verified', 'public', 'created', 'owner']
 })
