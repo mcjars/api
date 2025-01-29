@@ -225,6 +225,15 @@ const extraTypeInfos: Record<schema.ServerType, {
 		description: 'Advanced Slime Paper is a fork of Paper implementing the Slime Region Format developed by Hypixel.',
 		categories: ['plugins'],
 		compatibility: ['spigot', 'paper']
+	}, LEGACY_FABRIC: {
+		name: 'Legacy Fabric',
+		color: '#4903AA',
+		homepage: 'https://legacyfabric.net',
+		deprecated: false,
+		experimental: false,
+		description: 'Legacy Fabric is a project based on the Fabric Project, with the main priority to keep parity with upstream for older versions.',
+		categories: ['modded'],
+		compatibility: ['fabric']
 	}
 }
 

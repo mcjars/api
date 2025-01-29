@@ -20,7 +20,8 @@ export const types = [
 	'SPONGE',
 	'LEAVES',
 	'CANVAS',
-	'ASPAPER'
+	'ASPAPER',
+	'LEGACY_FABRIC'
 ] as const
 
 export const formats = [
