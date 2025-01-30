@@ -22,7 +22,7 @@ export = new globalAPIRouter.Path('/')
 											type: 'number'
 										}
 									}
-								}
+								}, required: ['success', 'builds']
 							}
 						}
 					}
@@ -93,7 +93,7 @@ export = new globalAPIRouter.Path('/')
 											$ref: '#/components/schemas/version'
 										}
 									}
-								}
+								}, required: ['success', 'builds']
 							}
 						}
 					}
@@ -154,7 +154,7 @@ export = new globalAPIRouter.Path('/')
 											$ref: '#/components/schemas/build'
 										}
 									}
-								}
+								}, required: ['success', 'builds']
 							}
 						}
 					}
@@ -240,10 +240,10 @@ export = new globalAPIRouter.Path('/')
 														type: 'string'
 													}
 												}
-											}
+											}, required: ['id', 'changes']
 										}
 									}
-								}
+								}, required: ['success', 'changes']
 							}
 						}
 					}

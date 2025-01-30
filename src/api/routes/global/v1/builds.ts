@@ -36,10 +36,7 @@ export = new globalAPIRouter.Path('/')
 											$ref: '#/components/schemas/version'
 										}
 									}
-								}, required: [
-									'success',
-									'versions'
-								]
+								}, required: ['success', 'versions']
 							}
 						}
 					}
@@ -84,10 +81,7 @@ export = new globalAPIRouter.Path('/')
 											$ref: '#/components/schemas/build'
 										}
 									}
-								}, required: [
-									'success',
-									'builds'
-								]
+								}, required: ['success', 'builds']
 							}
 						}
 					}
@@ -190,10 +184,7 @@ export = new globalAPIRouter.Path('/')
 									}, build: {
 										$ref: '#/components/schemas/build'
 									}
-								}, required: [
-									'success',
-									'build'
-								]
+								}, required: ['success', 'build']
 							}
 						}
 					}

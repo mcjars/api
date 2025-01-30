@@ -20,7 +20,7 @@ export = new globalAPIRouter.Path('/')
 										type: 'object',
 										properties: {
 											builds: {
-												type: 'number'
+												type: 'integer'
 											}, size: {
 												type: 'object',
 												properties: {
@@ -32,7 +32,7 @@ export = new globalAPIRouter.Path('/')
 															}, zip: {
 																type: 'number'
 															}
-														}
+														}, required: ['jar', 'zip']
 													}, average: {
 														type: 'object',
 														properties: {
@@ -41,9 +41,9 @@ export = new globalAPIRouter.Path('/')
 															}, zip: {
 																type: 'number'
 															}
-														}
+														}, required: ['jar', 'zip']
 													}
-												}
+												}, required: ['total', 'average']
 											}
 										}, required: ['builds', 'size']
 									}
@@ -122,9 +122,9 @@ export = new globalAPIRouter.Path('/')
 											type: 'object',
 											properties: {
 												day: {
-													type: 'number'
+													type: 'integer'
 												}, builds: {
-													type: 'number'
+													type: 'integer'
 												}, size: {
 													type: 'object',
 													properties: {
@@ -136,7 +136,7 @@ export = new globalAPIRouter.Path('/')
 																}, zip: {
 																	type: 'number'
 																}
-															}
+															}, required: ['jar', 'zip']
 														}, average: {
 															type: 'object',
 															properties: {
@@ -145,9 +145,9 @@ export = new globalAPIRouter.Path('/')
 																}, zip: {
 																	type: 'number'
 																}
-															}
+															}, required: ['jar', 'zip']
 														}
-													}
+													}, required: ['total', 'average']
 												}
 											}, required: ['day', 'builds', 'size']
 										}
@@ -175,7 +175,7 @@ export = new globalAPIRouter.Path('/')
 					required: true,
 					example: '2024',
 					schema: {
-						type: 'number'
+						type: 'integer'
 					}
 				},
 				{
@@ -185,7 +185,7 @@ export = new globalAPIRouter.Path('/')
 					required: true,
 					example: '1',
 					schema: {
-						type: 'number'
+						type: 'integer'
 					}
 				}
 			]
@@ -262,7 +262,7 @@ export = new globalAPIRouter.Path('/')
 										type: 'object',
 										properties: {
 											builds: {
-												type: 'number'
+												type: 'integer'
 											}, size: {
 												type: 'object',
 												properties: {
@@ -274,7 +274,7 @@ export = new globalAPIRouter.Path('/')
 															}, zip: {
 																type: 'number'
 															}
-														}
+														}, required: ['jar', 'zip']
 													}, average: {
 														type: 'object',
 														properties: {
@@ -283,9 +283,9 @@ export = new globalAPIRouter.Path('/')
 															}, zip: {
 																type: 'number'
 															}
-														}
+														}, required: ['jar', 'zip']
 													}
-												}
+												}, required: ['total', 'average']
 											}
 										}, required: ['builds', 'size']
 									}
@@ -363,9 +363,9 @@ export = new globalAPIRouter.Path('/')
 											type: 'object',
 											properties: {
 												day: {
-													type: 'number'
+													type: 'integer'
 												}, builds: {
-													type: 'number'
+													type: 'integer'
 												}, size: {
 													type: 'object',
 													properties: {
@@ -377,7 +377,7 @@ export = new globalAPIRouter.Path('/')
 																}, zip: {
 																	type: 'number'
 																}
-															}
+															}, required: ['jar', 'zip']
 														}, average: {
 															type: 'object',
 															properties: {
@@ -386,9 +386,9 @@ export = new globalAPIRouter.Path('/')
 																}, zip: {
 																	type: 'number'
 																}
-															}
+															}, required: ['jar', 'zip']
 														}
-													}
+													}, required: ['total', 'average']
 												}
 											}, required: ['day', 'builds', 'size']
 										}
@@ -416,7 +416,7 @@ export = new globalAPIRouter.Path('/')
 					required: true,
 					example: '2024',
 					schema: {
-						type: 'number'
+						type: 'integer'
 					}
 				},
 				{
@@ -426,7 +426,7 @@ export = new globalAPIRouter.Path('/')
 					required: true,
 					example: '1',
 					schema: {
-						type: 'number'
+						type: 'integer'
 					}
 				}
 			]
@@ -505,7 +505,7 @@ export = new globalAPIRouter.Path('/')
 										type: 'object',
 										properties: {
 											builds: {
-												type: 'number'
+												type: 'integer'
 											}, size: {
 												type: 'object',
 												properties: {
@@ -517,7 +517,7 @@ export = new globalAPIRouter.Path('/')
 															}, zip: {
 																type: 'number'
 															}
-														}
+														}, required: ['jar', 'zip']
 													}, average: {
 														type: 'object',
 														properties: {
@@ -526,9 +526,9 @@ export = new globalAPIRouter.Path('/')
 															}, zip: {
 																type: 'number'
 															}
-														}
+														}, required: ['jar', 'zip']
 													}
-												}
+												}, required: ['total', 'average']
 											}
 										}, required: ['builds', 'size']
 									}
@@ -625,9 +625,9 @@ export = new globalAPIRouter.Path('/')
 											type: 'object',
 											properties: {
 												day: {
-													type: 'number'
+													type: 'integer'
 												}, builds: {
-													type: 'number'
+													type: 'integer'
 												}, size: {
 													type: 'object',
 													properties: {
@@ -639,7 +639,7 @@ export = new globalAPIRouter.Path('/')
 																}, zip: {
 																	type: 'number'
 																}
-															}
+															}, required: ['jar', 'zip']
 														}, average: {
 															type: 'object',
 															properties: {
@@ -648,9 +648,9 @@ export = new globalAPIRouter.Path('/')
 																}, zip: {
 																	type: 'number'
 																}
-															}
+															}, required: ['jar', 'zip']
 														}
-													}
+													}, required: ['total', 'average']
 												}
 											}, required: ['day', 'builds', 'size']
 										}
@@ -688,7 +688,7 @@ export = new globalAPIRouter.Path('/')
 					required: true,
 					example: '2024',
 					schema: {
-						type: 'number'
+						type: 'integer'
 					}
 				},
 				{
@@ -698,7 +698,7 @@ export = new globalAPIRouter.Path('/')
 					required: true,
 					example: '1',
 					schema: {
-						type: 'number'
+						type: 'integer'
 					}
 				}
 			]

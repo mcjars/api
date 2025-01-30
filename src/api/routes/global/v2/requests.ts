@@ -22,14 +22,14 @@ export = new globalAPIRouter.Path('/')
 											type: 'object',
 											properties: {
 												total: {
-													type: 'number'
+													type: 'integer'
 												}, uniqueIps: {
-													type: 'number'
+													type: 'integer'
 												}
-											}
+											}, required: ['total', 'uniqueIps']
 										}
 									}
-								}
+								}, required: ['success', 'requests']
 							}
 						}
 					}
@@ -117,17 +117,17 @@ export = new globalAPIRouter.Path('/')
 												type: 'object',
 												properties: {
 													day: {
-														type: 'number'
+														type: 'integer'
 													}, total: {
-														type: 'number'
+														type: 'integer'
 													}, uniqueIps: {
-														type: 'number'
+														type: 'integer'
 													}
-												}
+												}, required: ['day', 'total', 'uniqueIps']
 											}
 										}
 									}
-								}
+								}, required: ['success', 'requests']
 							}
 						}
 					}
@@ -150,7 +150,7 @@ export = new globalAPIRouter.Path('/')
 					required: true,
 					example: 2024,
 					schema: {
-						type: 'number'
+						type: 'integer'
 					}
 				},
 				{
@@ -160,7 +160,7 @@ export = new globalAPIRouter.Path('/')
 					required: true,
 					example: 1,
 					schema: {
-						type: 'number'
+						type: 'integer'
 					}
 				}
 			]
@@ -252,27 +252,27 @@ export = new globalAPIRouter.Path('/')
 												type: 'object',
 												properties: {
 													total: {
-														type: 'number'
+														type: 'integer'
 													}, uniqueIps: {
-														type: 'number'
+														type: 'integer'
 													}
-												}
+												}, required: ['total', 'uniqueIps']
 											}, versions: {
 												type: 'object',
 												additionalProperties: {
 													type: 'object',
 													properties: {
 														total: {
-															type: 'number'
+															type: 'integer'
 														}, uniqueIps: {
-															type: 'number'
+															type: 'integer'
 														}
-													}
+													}, required: ['total', 'uniqueIps']
 												}
 											}
-										}
+										}, required: ['root', 'versions']
 									}
-								}
+								}, required: ['success', 'requests']
 							}
 						}
 					}
@@ -376,33 +376,33 @@ export = new globalAPIRouter.Path('/')
 											type: 'object',
 											properties: {
 												day: {
-													type: 'number'
+													type: 'integer'
 												}, root: {
 													type: 'object',
 													properties: {
 														total: {
-															type: 'number'
+															type: 'integer'
 														}, uniqueIps: {
-															type: 'number'
+															type: 'integer'
 														}
-													}
+													}, required: ['total', 'uniqueIps']
 												}, versions: {
 													type: 'object',
 													additionalProperties: {
 														type: 'object',
 														properties: {
 															total: {
-																type: 'number'
+																type: 'integer'
 															}, uniqueIps: {
-																type: 'number'
+																type: 'integer'
 															}
-														}
+														}, required: ['total', 'uniqueIps']
 													}
 												}
-											}
+											}, required: ['day', 'root', 'versions']
 										}
 									}
-								}
+								}, required: ['success', 'requests']
 							}
 						}
 					}
@@ -425,7 +425,7 @@ export = new globalAPIRouter.Path('/')
 					required: true,
 					example: 2024,
 					schema: {
-						type: 'number'
+						type: 'integer'
 					}
 				},
 				{
@@ -435,7 +435,7 @@ export = new globalAPIRouter.Path('/')
 					required: true,
 					example: 1,
 					schema: {
-						type: 'number'
+						type: 'integer'
 					}
 				}
 			]

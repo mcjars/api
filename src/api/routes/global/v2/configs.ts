@@ -29,7 +29,7 @@ export = new globalAPIRouter.Path('/')
 											}, required: ['type', 'format']
 										}
 									}
-								}
+								}, required: ['success', 'configs']
 							}
 						}
 					}
