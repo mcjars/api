@@ -457,7 +457,7 @@ const versionsProjectAsIdentifier = db.select()
 	)
 	.innerJoin(schema.builds, eq(schema.builds.id, sql`x.latest`))
 	.orderBy(asc(sql`x."createdOldest"`))
-	.prepare('versions_velocity')
+	.prepare('versions_project_as_identifier')
 
 type DbWithoutWrite = Omit<typeof db, 'insert' | 'update' | 'delete'>
 

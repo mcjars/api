@@ -199,7 +199,7 @@ export = new globalAPIRouter.Path('/')
 			if (isNaN(month) || month < 1 || month > 12) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid month'] })
 
 			const start = new Date(year, month - 1, 1),
-				end = new Date(year, month, 0)
+				end = new Date(year, month, 0, 23, 59, 59, 999)
 
 			const stats = await ctr["@"].cache.use(`stats::version::${version}::history::${start.getTime()}::${end.getTime()}`, () => ctr["@"].database.select({
 					builds: count(),
@@ -718,7 +718,7 @@ export = new globalAPIRouter.Path('/')
 			if (isNaN(month) || month < 1 || month > 12) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid month'] })
 
 			const start = new Date(year, month - 1, 1),
-				end = new Date(year, month, 0)
+				end = new Date(year, month, 0, 23, 59, 59, 999)
 
 			const stats = await ctr["@"].cache.use(`stats::${type}::${version}::history::${start.getTime()}::${end.getTime()}`, () => ctr["@"].database.select({
 					builds: count(),

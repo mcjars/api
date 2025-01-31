@@ -61,7 +61,7 @@ export = new userAPIRouter.Path('/')
 						id: ctr["@"].database.schema.users.id
 					})
 						.from(ctr["@"].database.schema.users)
-						.where(ilike(ctr["@"].database.schema.users.login, data.data.owner!))
+						.where(ilike(ctr["@"].database.schema.users.login, data.data.owner!.replace(/%|_/g, (r) => `\\${r}`)))
 						.then((r) => r[0]?.id),
 					time(1).h()
 				)
