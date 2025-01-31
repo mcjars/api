@@ -51,7 +51,7 @@ export = new globalAPIRouter.Path('/')
 													type: 'number'
 												}
 											}
-										}, required: ['id', 'builds']
+										}, required: ['id', 'type', 'supported', 'created', 'builds']
 									}
 								}, required: ['success', 'version']
 							}
@@ -98,6 +98,7 @@ export = new globalAPIRouter.Path('/')
 	)
 	.http('GET', '/{version}/builds', (http) => http
 		.document({
+			deprecated: true,
 			responses: {
 				200: {
 					description: 'Success',

@@ -1,6 +1,7 @@
 import { globalAPIRouter } from "@/api"
 import { and, asc, count, countDistinct, desc, eq, gte, isNotNull, lte, notLike, sql } from "drizzle-orm"
 import { object, time } from "@rjweb/utils"
+import { typesWithProjectAsIdentifier } from "@/globals/database"
 
 export = new globalAPIRouter.Path('/')
 	.http('GET', '/versions', (http) => http
@@ -220,7 +221,7 @@ export = new globalAPIRouter.Path('/')
 			const type = ctr["@"].database.matchType(ctr.params.get('type', ''))
 			if (!type) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: ['Invalid type'] })
 
-			const selector = type === 'VELOCITY' ? 'projectVersionId' : 'versionId'
+			const selector = typesWithProjectAsIdentifier.includes(type) ? 'projectVersionId' : 'versionId'
 
 			const versions = await ctr["@"].cache.use(`lookups::versions::${type}`, () => ctr["@"].database.select({
 					version: sql<string>`x.version`.as('version'),
@@ -333,7 +334,7 @@ export = new globalAPIRouter.Path('/')
 			const start = new Date(year, month - 1, 1),
 				end = new Date(year, month, 0, 23, 59, 59, 999)
 
-			const selector = type === 'VELOCITY' ? 'projectVersionId' : 'versionId'
+			const selector = typesWithProjectAsIdentifier.includes(type) ? 'projectVersionId' : 'versionId'
 
 			const versions = await ctr["@"].cache.use(`lookups::versions::${type}::history::${start.getTime()}::${end.getTime()}`, () => ctr["@"].database.select({
 					version: sql<string>`x.version`.as('version'),

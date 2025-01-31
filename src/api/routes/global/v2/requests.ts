@@ -1,6 +1,7 @@
 import { globalAPIRouter } from "@/api"
 import { and, count, countDistinct, desc, eq, gte, inArray, like, lte, notLike, sql } from "drizzle-orm"
 import { object, time } from "@rjweb/utils"
+import { typesWithProjectAsIdentifier } from "@/globals/database"
 
 export = new globalAPIRouter.Path('/')
 	.http('GET', '/version/{version}', (http) => http
@@ -330,7 +331,7 @@ export = new globalAPIRouter.Path('/')
 						.from(ctr["@"].database.schema.minecraftVersions),
 					time(3).h()
 				),
-				type !== 'VELOCITY' ? null : ctr["@"].cache.use(`versions::all::project::${type}`, () => ctr["@"].database.select({
+				!typesWithProjectAsIdentifier.includes(type) ? null : ctr["@"].cache.use(`versions::all::project::${type}`, () => ctr["@"].database.select({
 						id: ctr["@"].database.schema.projectVersions.id
 					})
 						.from(ctr["@"].database.schema.projectVersions)
@@ -340,7 +341,7 @@ export = new globalAPIRouter.Path('/')
 			])
 
 			const mappedRequests = requests.map((stat) => ({
-				version: type !== 'VELOCITY' ? mcVersions.find((v) => stat.version === v.id.toUpperCase())?.id : projectVersions?.find((v) => stat.version === v.id.toUpperCase())?.id,
+				version: !typesWithProjectAsIdentifier.includes(type) ? mcVersions.find((v) => stat.version === v.id.toUpperCase())?.id : projectVersions?.find((v) => stat.version === v.id.toUpperCase())?.id,
 				total: stat.total,
 				uniqueIps: stat.uniqueIps
 			}))
@@ -492,7 +493,7 @@ export = new globalAPIRouter.Path('/')
 						.from(ctr["@"].database.schema.minecraftVersions),
 					time(3).h()
 				),
-				type !== 'VELOCITY' ? null : ctr["@"].cache.use(`versions::all::project::${type}`, () => ctr["@"].database.select({
+				!typesWithProjectAsIdentifier.includes(type) ? null : ctr["@"].cache.use(`versions::all::project::${type}`, () => ctr["@"].database.select({
 						id: ctr["@"].database.schema.projectVersions.id
 					})
 						.from(ctr["@"].database.schema.projectVersions)
@@ -503,7 +504,7 @@ export = new globalAPIRouter.Path('/')
 
 			const mappedRequests = requests.map((stat) => ({
 				day: parseInt(stat.day),
-				version: type !== 'VELOCITY' ? mcVersions.find((v) => stat.version === v.id.toUpperCase())?.id : projectVersions?.find((v) => stat.version === v.id.toUpperCase())?.id,
+				version: !typesWithProjectAsIdentifier.includes(type) ? mcVersions.find((v) => stat.version === v.id.toUpperCase())?.id : projectVersions?.find((v) => stat.version === v.id.toUpperCase())?.id,
 				total: stat.total,
 				uniqueIps: stat.uniqueIps
 			}))

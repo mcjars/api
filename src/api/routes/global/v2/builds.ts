@@ -216,6 +216,7 @@ export = new globalAPIRouter.Path('/')
 	)
 	.http('GET', '/{type}/{version}/changes', (http) => http
 		.document({
+			deprecated: true,
 			responses: {
 				200: {
 					description: 'Success',

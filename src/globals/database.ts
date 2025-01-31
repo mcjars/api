@@ -237,6 +237,8 @@ const extraTypeInfos: Record<schema.ServerType, {
 	}
 }
 
+export const typesWithProjectAsIdentifier: schema.ServerType[] = ['VELOCITY']
+
 export const configs: Record<string, {
 	type: schema.ServerType
 	format: schema.Format
@@ -437,7 +439,7 @@ const versionsAll = db.select()
 	.innerJoin(schema.builds, eq(schema.builds.id, sql`x.latest`))
 	.prepare('versions_all')
 
-const versionsVelocity = db.select()
+const versionsProjectAsIdentifier = db.select()
 	.from(
 		db.select({
 			builds: count(schema.builds.id).as('builds'),
@@ -448,7 +450,7 @@ const versionsVelocity = db.select()
 			.from(schema.projectVersions)
 			.innerJoin(schema.builds, and(
 				eq(schema.builds.projectVersionId, schema.projectVersions.id),
-				eq(schema.builds.type, 'VELOCITY')
+				eq(schema.builds.type, sql.placeholder('type'))
 			))
 			.groupBy(schema.projectVersions.id)
 			.as('x')
@@ -603,47 +605,43 @@ export default Object.assign(db as DbWithoutWrite, {
 	},
 
 	async versions(type: schema.ServerType) {
-		switch (type) {
-			case "VELOCITY": {
-				const versions = await cache.use('builds::VELOCITY', async() => {
-					const versions = await versionsVelocity.execute()
+		if (typesWithProjectAsIdentifier.includes(type)) {
+			const versions = await cache.use(`builds::${type}`, async() => {
+				const versions = await versionsProjectAsIdentifier.execute({ type })
 
-					return Object.fromEntries(versions.map((version, i) => [
-						version.x.projectVersionId,
-						{
-							type: 'RELEASE',
-							supported: i === versions.length - 1,
-							java: 21,
-							created: version.x.createdOldest,
-							builds: Number(version.x.builds),
-							latest: this.prepare.build(version.builds)
-						}
-					]))
-				}, time(30).m())
+				return Object.fromEntries(versions.map((version, i) => [
+					version.x.projectVersionId,
+					{
+						type: 'RELEASE',
+						supported: i === versions.length - 1,
+						java: 21,
+						created: version.x.createdOldest,
+						builds: Number(version.x.builds),
+						latest: this.prepare.build(version.builds)
+					}
+				]))
+			}, time(30).m())
 
-				return versions
-			}
-
-			default: {
-				const versions = await cache.use(`builds::${type}`, async() => {
-					const versions = await versionsAll.execute({ type })
-
-					return Object.fromEntries(versions.map((version) => [
-						version.builds.versionId!,
-						{
-							type: version.x.versionType,
-							supported: version.x.supported,
-							java: version.x.java,
-							created: version.x.created,
-							builds: Number(version.x.builds),
-							latest: this.prepare.build(version.builds)
-						}
-					]))
-				}, time(30).m())
-
-				return versions
-			}
+			return versions
 		}
+
+		const versions = await cache.use(`builds::${type}`, async() => {
+			const versions = await versionsAll.execute({ type })
+
+			return Object.fromEntries(versions.map((version) => [
+				version.builds.versionId!,
+				{
+					type: version.x.versionType,
+					supported: version.x.supported,
+					java: version.x.java,
+					created: version.x.created,
+					builds: Number(version.x.builds),
+					latest: this.prepare.build(version.builds)
+				}
+			]))
+		}, time(30).m())
+
+		return versions
 	},
 
 	async version(version: string, type: schema.ServerType): Promise<'minecraft' | 'project' | null> {
