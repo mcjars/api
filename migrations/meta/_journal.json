@@ -134,6 +134,13 @@
       "when": 1738404998413,
       "tag": "0018_flat_the_santerians",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1738407188405,
+      "tag": "0019_rapid_katie_power",
+      "breakpoints": true
     }
   ]
 }

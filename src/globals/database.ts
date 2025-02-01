@@ -697,7 +697,7 @@ export default Object.assign(db as DbWithoutWrite, {
 				.then((r) => r[0])
 		]), time(30).m())
 
-		return minecraft ? 'minecraft' : project ? 'project' : null
+		return project ? 'project' : minecraft ? 'minecraft' : null
 	},
 
 	types() {
