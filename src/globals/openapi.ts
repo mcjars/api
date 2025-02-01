@@ -1,5 +1,5 @@
-import { server } from '@/api'
-import { types } from '@/schema'
+import { server } from "@/api"
+import { types } from "@/schema"
 
 server.schema('types', {
 	type: 'string',
@@ -160,17 +160,12 @@ server.schema('installationStep', {
 				}, file: {
 					type: 'string'
 				}, url: {
-					type: 'string'
+					type: 'string',
+					format: 'uri'
 				}, size: {
-					'type': 'integer'
+					type: 'integer'
 				}
-			}, required: [
-				'type',
-				'optional',
-				'file',
-				'url',
-				'size'
-			]
+			}, required: ['type', 'file', 'url', 'size']
 		},
 		{
 			type: 'object',
@@ -183,12 +178,7 @@ server.schema('installationStep', {
 				}, location: {
 					type: 'string'
 				}
-			}, required: [
-				'type',
-				'optional',
-				'file',
-				'location'
-			]
+			}, required: ['type', 'file', 'location']
 		},
 		{
 			type: 'object',
@@ -196,19 +186,14 @@ server.schema('installationStep', {
 				type: {
 					type: 'string',
 					const: 'remove'
-				},
-				location: {
+				}, location: {
 					type: 'string',
 					enum: [
 						'libraries',
 						'mcvapi.server.jar.zip'
 					]
 				}
-			}, required: [
-				'type',
-				'optional',
-				'location'
-			]
+			}, required: ['type', 'location']
 		}
 	]
 })

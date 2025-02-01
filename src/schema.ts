@@ -21,7 +21,9 @@ export const types = [
 	'LEAVES',
 	'CANVAS',
 	'ASPAPER',
-	'LEGACY_FABRIC'
+	'LEGACY_FABRIC',
+	'LOOHP_LIMBO',
+	'NANOLIMBO'
 ] as const
 
 export const formats = [
@@ -59,14 +61,14 @@ export type InstallStep = {
 
 export const organizations = pgTable('organizations', {
 	id: serial('id').primaryKey().notNull(),
-	ownerId: integer('owner_id').notNull().references(() => users.id, { onDelete: 'cascade' }).default(1),
+	ownerId: integer('owner_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
 
 	verified: boolean('verified').default(false).notNull(),
 	public: boolean('public').default(false).notNull(),
 
 	name: varchar('name', { length: 255 }).notNull(),
 	icon: varchar('icon', { length: 255 }).default('https://s3.mcjars.app/organization-icons/default.webp').notNull(),
-	types: jsonb('types').notNull().$type<ServerType[]>(),
+	types: jsonb('types').default([]).$type<ServerType[]>().notNull(),
 
 	created: timestamp('created').default(sql`now()`).notNull()
 }, (organizations) => [
@@ -228,7 +230,7 @@ export const builds = pgTable('builds', {
 	index('builds_jar_size_idx').on(builds.jarSize).where(isNotNull(builds.jarSize)),
 	index('builds_zip_url_idx').on(builds.zipUrl).where(isNotNull(builds.zipUrl)),
 	index('builds_zip_size_idx').on(builds.zipSize).where(isNotNull(builds.zipSize)),
-	index('builds_created_idx').on(builds.created).where(isNotNull(builds.created)),
+	index('builds_created_idx').on(builds.created),
 	index('builds_version_type_idx').on(builds.versionId, builds.type),
 	index('builds_project_version_type_idx').on(builds.projectVersionId, builds.type),
 	index('builds_version_idx').on(builds.versionId),

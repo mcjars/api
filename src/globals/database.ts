@@ -51,7 +51,7 @@ const extraTypeInfos: Record<schema.ServerType, {
 	deprecated: boolean
 	experimental: boolean
 	description: string
-	categories: ('modded' | 'plugins' | 'proxy')[]
+	categories: ('modded' | 'plugins' | 'proxy' | 'limbo')[]
 	compatibility: typeof compatibility[number][]
 }> = {
 	VANILLA: {
@@ -234,10 +234,28 @@ const extraTypeInfos: Record<schema.ServerType, {
 		description: 'Legacy Fabric is a project based on the Fabric Project, with the main priority to keep parity with upstream for older versions.',
 		categories: ['modded'],
 		compatibility: ['fabric']
+	}, LOOHP_LIMBO: {
+		name: 'LooHP Limbo',
+		color: '#93ACFF',
+		homepage: 'https://github.com/LOOHP/Limbo',
+		deprecated: false,
+		experimental: false,
+		description: 'Standalone Limbo Minecraft Server.',
+		categories: ['limbo'],
+		compatibility: []
+	}, NANOLIMBO: {
+		name: 'NanoLimbo',
+		color: '#AEAEAE',
+		homepage: 'https://github.com/Nan1t/NanoLimbo',
+		deprecated: false,
+		experimental: false,
+		description: 'A lightweight Limbo Minecraft Server, written in Java with Netty. Maximum simplicity with a minimum number of sent and processed packets.',
+		categories: ['limbo'],
+		compatibility: []
 	}
 }
 
-export const typesWithProjectAsIdentifier: schema.ServerType[] = ['VELOCITY']
+export const typesWithProjectAsIdentifier: schema.ServerType[] = ['VELOCITY', 'NANOLIMBO']
 
 export const configs: Record<string, {
 	type: schema.ServerType
@@ -365,6 +383,20 @@ export const configs: Record<string, {
 		format: 'YAML',
 		aliases: ['waterfall.yml']
 	},
+
+	// NanoLimbo
+	'settings.yml': {
+		type: 'NANOLIMBO',
+		format: 'YAML',
+		aliases: ['settings.yml']
+	}
+
+	// Loohp Limbo // TODO: Find better way to handle this
+	// 'server.properties': {
+	// 	type: 'LOOHP_LIMBO',
+	// 	format: 'PROPERTIES',
+	// 	aliases: ['server.properties']
+	// }
 }
 
 export type RawBuild = {
