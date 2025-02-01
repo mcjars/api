@@ -38,8 +38,13 @@ export = new globalAPIRouter.Path('/')
 												additionalProperties: {
 													$ref: '#/components/schemas/typeInformation'
 												}
+											}, limbos: {
+												type: 'object',
+												additionalProperties: {
+													$ref: '#/components/schemas/typeInformation'
+												}
 											}
-										}, required: ['recommended', 'established', 'experimental', 'miscellaneous']
+										}, required: ['recommended', 'established', 'experimental', 'miscellaneous', 'limbos']
 									}
 								}, required: ['success', 'types']
 							}
@@ -57,7 +62,8 @@ export = new globalAPIRouter.Path('/')
 					recommended: object.pick(types, ['VANILLA', 'PAPER', 'FABRIC', 'FORGE', 'NEOFORGE', 'VELOCITY']),
 					established: object.pick(types, ['PURPUR', 'PUFFERFISH', 'SPONGE', 'SPIGOT', 'BUNGEECORD', 'WATERFALL']),
 					experimental: object.pick(types, ['FOLIA', 'QUILT', 'CANVAS']),
-					miscellaneous: object.pick(types, ['ARCLIGHT', 'MOHIST', 'LEAVES', 'ASPAPER', 'LEGACY_FABRIC'])
+					miscellaneous: object.pick(types, ['ARCLIGHT', 'MOHIST', 'LEAVES', 'ASPAPER', 'LEGACY_FABRIC']),
+					limbos: object.pick(types, ['LOOHP_LIMBO', 'NANOLIMBO'])
 				}
 			})
 		})
