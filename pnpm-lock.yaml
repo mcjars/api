@@ -45,8 +45,8 @@ importers:
         specifier: ^8.13.1
         version: 8.13.1
       rjweb-server:
-        specifier: ^9.8.5
-        version: 9.8.5
+        specifier: ^9.8.6
+        version: 9.8.6
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
@@ -1797,8 +1797,8 @@ packages:
     resolution: {integrity: sha512-l+sSefzHpj5qimhFSE5a8nufZYAM3sBSVMAPtYkmC+4EH2anSGaEMXSD0izRQbu9nfyQ9y5JrVmp7E8oZrUjvA==}
     engines: {node: '>=8'}
 
-  rjweb-server@9.8.5:
-    resolution: {integrity: sha512-lbH9YOaBaM9tB5pX++elzdEIM2XoJ331yH2mu7IhJ4ADNIh+bffFPUixw32btOOYeB7+x7TUne06I+jpZxxI/Q==}
+  rjweb-server@9.8.6:
+    resolution: {integrity: sha512-O73XZL64PUrvbW2spQtBA4ZNcEVthn3SeuStzz+rIUYvOe07c12+dHkdxGHhJGjlmVC03ED+LWAqxvrVRTUbfQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -3101,7 +3101,7 @@ snapshots:
   '@rjweb/sentry@2.1.5':
     dependencies:
       '@sentry/node': 8.54.0
-      rjweb-server: 9.8.5
+      rjweb-server: 9.8.6
     transitivePeerDependencies:
       - supports-color
 
@@ -3976,7 +3976,7 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
 
-  rjweb-server@9.8.5:
+  rjweb-server@9.8.6:
     dependencies:
       '@rjweb/utils': 1.12.27
       content-disposition: 0.5.4
