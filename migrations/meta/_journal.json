@@ -141,6 +141,13 @@
       "when": 1738407188405,
       "tag": "0019_rapid_katie_power",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1738754878997,
+      "tag": "0020_premium_meltdown",
+      "breakpoints": true
     }
   ]
 }

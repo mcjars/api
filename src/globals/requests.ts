@@ -32,15 +32,15 @@ const pending: Request[] = [],
 /**
  * Log a new request
  * @since 1.18.0
-*/ export async function log(method: schema.Method, route: string | RegExp, body: JSONParsed | null, ip: network.IPAddress, origin: string, userAgent: string, organization: number | null, headers: ValueCollection<string, string, Content>): Promise<Request> {
+*/ export async function log(method: schema.Method, path: string, body: JSONParsed | null, ip: network.IPAddress, origin: string, userAgent: string, organization: { id: number, verified: boolean } | null, headers: ValueCollection<string, string, Content>): Promise<Request> {
 	const request: Request = {
 		id: string.generate({ length: 12 }),
-		organizationId: organization ?? null,
+		organizationId: organization?.id ?? null,
 		end: false,
 
 		origin,
 		method,
-		path: typeof route === 'string' ? route : route.source,
+		path,
 		time: 0,
 		status: 0,
 		body: typeof body === 'object' ? body : null,
@@ -54,21 +54,23 @@ const pending: Request[] = [],
 
 	pending.push(request)
 
-	if (!organization) {
+	if (!organization || !organization.verified) {
 		let ratelimitKey = 'ratelimit::'
 		if (ip['type'] === 4) ratelimitKey += ip.long()
 		else ratelimitKey += ip.rawData.slice(0, 4).join(':')
+
+		const ratelimit = organization ? env.RATELIMIT_PER_MINUTE * 2 : env.RATELIMIT_PER_MINUTE
 
 		const count = await cache.incr(ratelimitKey)
 		if (count === 1) await cache.expire(ratelimitKey, Math.floor(time(1).m() / 1000))
 
 		const expires = await cache.ttl(ratelimitKey)
 
-		headers.set('X-RateLimit-Limit', env.RATELIMIT_PER_MINUTE)
-		headers.set('X-RateLimit-Remaining', env.RATELIMIT_PER_MINUTE - count)
+		headers.set('X-RateLimit-Limit', ratelimit)
+		headers.set('X-RateLimit-Remaining', ratelimit - count)
 		headers.set('X-RateLimit-Reset', expires)
 
-		if (count > env.RATELIMIT_PER_MINUTE) request.end = true
+		if (count > ratelimit) request.end = true
 	}
 
 	return request
@@ -86,7 +88,7 @@ const pending: Request[] = [],
 	processing.push(request)
 }
 
-const process = async(): Promise<void> => {
+async function process() {
 	const requests = processing.splice(0, 30)
 	if (!requests.length) return
 

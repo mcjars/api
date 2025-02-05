@@ -1,5 +1,6 @@
 import { userAPIRouter } from "@/api"
-import { desc, eq, or } from "drizzle-orm"
+import { count, desc, eq, or } from "drizzle-orm"
+import { z } from "zod"
 
 function uniqueOrganizations<T extends { id: number }>(organizations: T[]): T[] {
 	const ids = new Set(organizations.map((organization) => organization.id))
@@ -89,5 +90,59 @@ export = new userAPIRouter.Path('/')
 					}))
 				}
 			})
+		})
+	)
+	.http('POST', '/', (http) => http
+		.document({
+			responses: {
+				200: {
+					description: 'Success',
+					content: {
+						'application/json': {
+							schema: {
+								type: 'object',
+								properties: {
+									success: { type: 'boolean', const: true }
+								}, required: ['success']
+							}
+						}
+					}
+				}
+			}, requestBody: {
+				content: {
+					'application/json': {
+						schema: {
+							type: 'object',
+							properties: {
+								name: { type: 'string', minLength: 3, maxLength: 16 }
+							}, required: ['name']
+						}
+					}
+				}
+			}
+		})
+		.onRequest(async(ctr) => {
+			const data = z.object({
+				name: z.string().min(3).max(16)
+			}).safeParse(await ctr.$body().json().catch(() => null))
+
+			if (!data.success) return ctr.status(ctr.$status.BAD_REQUEST).print({ success: false, errors: data.error.errors.map((err) => `${err.path.join('.')}: ${err.message}`) })
+
+			const organizations = await ctr["@"].database.select({
+				count: count()
+			}).from(ctr["@"].database.schema.organizations)
+				.where(eq(ctr["@"].database.schema.organizations.ownerId, ctr["@"].user.id))
+				.then((r) => r[0].count)
+
+			if (organizations >= ctr["@"].env.MAX_ORGANIZATIONS_PER_USER) return ctr.status(ctr.$status.FORBIDDEN).print({ success: false, errors: ['You can only own up to 2 organizations currently'] })
+
+			try {
+				await ctr["@"].database.write.insert(ctr["@"].database.schema.organizations)
+					.values({ name: data.data.name, ownerId: ctr["@"].user.id })
+
+				return ctr.print({ success: true })
+			} catch {
+				return ctr.status(ctr.$status.CONFLICT).print({ success: false, errors: ['Organization name already taken'] })
+			}
 		})
 	)

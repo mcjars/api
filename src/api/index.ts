@@ -131,7 +131,7 @@ const organizationValidator = new server.Validator<{ force: boolean }>()
 				ctr.client.ip,
 				ctr.client.origin,
 				ctr.client.userAgent,
-				ctr["@"].organization?.id ?? null,
+				ctr["@"].organization ?? null,
 				ctr.headers
 			)
 
@@ -450,6 +450,9 @@ server.path('/', (path) => path
 )
 
 server.http(async(ctr) => {
+	ctr.headers.set('X-Server-Version', ctr["@"].appVersion)
+	ctr.headers.set('X-Server-Name', env.SERVER_NAME)
+
 	ctr["@"].data = {}
 	logger()
 		.text(`${ctr.type.toUpperCase()} ${ctr.url.method}`, (c) => c.green)
@@ -470,13 +473,9 @@ if (env.LOG_LEVEL === 'debug') server.finish('httpRequest', (ctr) => {
 		.debug()
 })
 
-server
-	.rateLimit('httpRequest', (ctr) => {
-		return ctr.status(ctr.$status.TOO_MANY_REQUESTS).print({ success: false, errors: ['You are making too many requests! Slow down.'] })
-	})
-	.rateLimit('wsMessage', (ctr) => {
-		return ctr.close(1008, 'You are making too many requests! Slow down.')
-	})
+server.rateLimit('httpRequest', (ctr) => {
+	return ctr.status(ctr.$status.TOO_MANY_REQUESTS).print({ success: false, errors: ['You are making too many requests! Slow down.'] })
+})
 
 server.error('httpRequest', (ctr, error) => {
 	if (process.env.NODE_ENV === 'development') ctr.status(ctr.$status.INTERNAL_SERVER_ERROR).print({ success: false, errors: [error.toString()] })

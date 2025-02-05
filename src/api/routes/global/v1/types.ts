@@ -4,6 +4,7 @@ import { object } from "@rjweb/utils"
 export = new globalAPIRouter.Path('/')
 	.http('GET', '/', (http) => http
 		.document({
+			deprecated: true,
 			responses: {
 				200: {
 					description: 'Success',

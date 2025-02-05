@@ -19,6 +19,7 @@ const base = z.object({
 
 	PORT: z.string().transform((str) => parseInt(str)).optional(),
 	RATELIMIT_PER_MINUTE: z.string().transform((str) => parseInt(str)).optional().default('120'),
+	MAX_ORGANIZATIONS_PER_USER: z.string().transform((str) => parseInt(str)).optional().default('2'),
 
 	GITHUB_CLIENT_ID: z.string().optional(),
 	GITHUB_CLIENT_SECRET: z.string().optional(),

@@ -318,18 +318,14 @@ server.schema('error', {
 	type: 'object',
 	properties: {
 		success: {
-			type: 'boolean',
-			const: false
+			type: 'boolean', const: false
 		}, errors: {
 			type: 'array',
 			items: {
 				type: 'string'
 			}
 		}
-	}, required: [
-		'success',
-		'errors'
-	]
+	}, required: ['success', 'errors']
 })
 
 server.schema('user', {

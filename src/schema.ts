@@ -72,7 +72,7 @@ export const organizations = pgTable('organizations', {
 
 	created: timestamp('created').default(sql`now()`).notNull()
 }, (organizations) => [
-	index('organizations_name_idx').on(organizations.name)
+	uniqueIndex('organizations_name_idx').on(organizations.name)
 ])
 
 export const organizationKeys = pgTable('organization_keys', {
