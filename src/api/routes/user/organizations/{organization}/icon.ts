@@ -64,7 +64,7 @@ export = new userAPIRouter.Path('/')
 				const image = await sharp(await ctr.$body().arrayBuffer()).resize(512, 512, { fit: 'cover' }).webp().toBuffer(),
 					url = await ctr["@"].s3.url(`organization-icons/${ctr["@"].organization.id}-${string.generateSegments([5, 6, 4])}.webp`, image, 'image/webp')
 
-				if (ctr["@"].organization.icon && ctr["@"].env.S3_URL && ctr["@"].organization.icon.startsWith(ctr["@"].env.S3_URL)) {
+				if (ctr["@"].organization.icon && ctr["@"].env.S3_URL && ctr["@"].organization.icon.startsWith(ctr["@"].env.S3_URL) && !ctr["@"].organization.icon.endsWith('default.webp')) {
 					await ctr["@"].s3.send(new DeleteObjectCommand({
 						Bucket: ctr["@"].env.S3_BUCKET,
 						Key: ctr["@"].organization.icon.slice(ctr["@"].env.S3_URL.length + 1)

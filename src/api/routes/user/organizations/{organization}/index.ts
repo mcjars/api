@@ -115,7 +115,7 @@ export = new userAPIRouter.Path('/')
 			if (ctr["@"].organization.ownerId !== ctr["@"].user.id) return ctr.status(ctr.$status.FORBIDDEN).print({ success: false, errors: ['You do not have permission to delete this organization'] })
 			if (ctr["@"].organization.verified) return ctr.status(ctr.$status.FORBIDDEN).print({ success: false, errors: ['You cannot delete a verified organization, contact support'] })
 
-			if (ctr["@"].organization.icon && ctr["@"].env.S3_URL && ctr["@"].organization.icon.startsWith(ctr["@"].env.S3_URL)) {
+			if (ctr["@"].organization.icon && ctr["@"].env.S3_URL && ctr["@"].organization.icon.startsWith(ctr["@"].env.S3_URL) && !ctr["@"].organization.icon.endsWith('default.webp')) {
 				await ctr["@"].s3.send(new DeleteObjectCommand({
 					Bucket: ctr["@"].env.S3_BUCKET,
 					Key: ctr["@"].organization.icon.slice(ctr["@"].env.S3_URL.length + 1)
