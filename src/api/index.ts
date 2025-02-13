@@ -371,6 +371,7 @@ server.path('/', (path) => path
 	)
 	.http('GET', '/icons/{type}', (path) => path
 		.document({
+			deprecated: true,
 			parameters: [
 				{
 					name: 'type',

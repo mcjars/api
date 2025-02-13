@@ -46,13 +46,8 @@ export = new globalAPIRouter.Path('/')
 				.then((r) => r[0].id)
 
 			const session = await ctr["@"].database.write.insert(ctr["@"].database.schema.userSessions)
-				.values({
-					userId: id,
-					session: string.hash(`${id}-${Date.now()}`, { algorithm: 'sha256' })
-				})
-				.returning({
-					session: ctr["@"].database.schema.userSessions.session
-				})
+				.values({ userId: id, session: string.hash(`${id}-${Date.now()}`, { algorithm: 'sha256' }) })
+				.returning({ session: ctr["@"].database.schema.userSessions.session })
 				.then((r) => r[0].session)
 
 			ctr.cookies.set('session', new Cookie(session, {
