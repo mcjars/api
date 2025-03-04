@@ -38,9 +38,9 @@ const pending: Request[] = [],
 		organizationId: organization?.id ?? null,
 		end: false,
 
-		origin,
+		origin: origin.slice(0, 255),
 		method,
-		path,
+		path: path.slice(0, 255),
 		time: 0,
 		status: 0,
 		body: typeof body === 'object' ? body : null,
@@ -48,7 +48,7 @@ const pending: Request[] = [],
 		continent: null,
 		country: null,
 		data: {},
-		userAgent,
+		userAgent: userAgent.slice(0, 255),
 		created: new Date()
 	}
 
