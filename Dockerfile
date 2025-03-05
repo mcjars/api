@@ -1,6 +1,9 @@
 # builder for server
-FROM node:22-alpine as builder-server
+FROM node:22 as builder-server
 LABEL author="Robert Jansen" maintainer="rjansengd@gmail.com"
+
+RUN apt update && \
+    apt install -y build-essential
 
 USER root
 
@@ -10,7 +13,7 @@ COPY ./package.json /app/server/package.json
 COPY ./pnpm-lock.yaml /app/server/pnpm-lock.yaml
 
 RUN cd /app/server && \
-    pnpm install --frozen-lockfile
+    pnpm install --frozen-lockfile --unsafe-perm
 
 COPY ./src /app/server/src
 COPY ./tsconfig.json /app/server/tsconfig.json
