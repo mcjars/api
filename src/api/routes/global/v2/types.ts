@@ -61,7 +61,7 @@ export = new globalAPIRouter.Path('/')
 				types: {
 					recommended: object.pick(types, ['VANILLA', 'PAPER', 'FABRIC', 'FORGE', 'NEOFORGE', 'VELOCITY']),
 					established: object.pick(types, ['PURPUR', 'PUFFERFISH', 'SPONGE', 'SPIGOT', 'BUNGEECORD', 'WATERFALL']),
-					experimental: object.pick(types, ['FOLIA', 'QUILT', 'CANVAS']),
+					experimental: object.pick(types, ['FOLIA', 'QUILT', 'CANVAS', 'DIVINEMC']),
 					miscellaneous: object.pick(types, ['ARCLIGHT', 'MOHIST', 'LEAVES', 'ASPAPER', 'LEGACY_FABRIC']),
 					limbos: object.pick(types, ['LOOHP_LIMBO', 'NANOLIMBO'])
 				}

@@ -23,7 +23,8 @@ export const types = [
 	'ASPAPER',
 	'LEGACY_FABRIC',
 	'LOOHP_LIMBO',
-	'NANOLIMBO'
+	'NANOLIMBO',
+	'DIVINEMC'
 ] as const
 
 export const formats = [

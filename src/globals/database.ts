@@ -252,6 +252,15 @@ const extraTypeInfos: Record<schema.ServerType, {
 		description: 'A lightweight Limbo Minecraft Server, written in Java with Netty. Maximum simplicity with a minimum number of sent and processed packets.',
 		categories: ['limbo'],
 		compatibility: []
+	}, DIVINEMC: {
+		name: 'DivineMC',
+		color: '#4B484B',
+		homepage: 'https://github.com/BX-Team/DivineMC',
+		deprecated: false,
+		experimental: true,
+		description: 'A high-performance Purpur fork focused on maximizing server performance while maintaining plugin compatibility.',
+		categories: ['plugins'],
+		compatibility: ['spigot', 'paper', 'purpur']
 	}
 }
 
