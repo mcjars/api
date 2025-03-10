@@ -332,6 +332,13 @@ export const configs: Record<string, {
 		aliases: ['canvas.yml']
 	},
 
+	// DivineMC
+	'divinemc.yml': {
+		type: 'DIVINEMC',
+		format: 'YAML',
+		aliases: ['divinemc.yml']
+	},
+
 	// Sponge
 	'config/sponge/global.conf': {
 		type: 'SPONGE',
