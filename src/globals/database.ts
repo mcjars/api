@@ -618,21 +618,56 @@ export default Object.assign(db as DbWithoutWrite, {
 	formatConfig(file: string, rawValue: string) {
 		let value = ''
 
-		for (const line of rawValue.split('\n')) {
-			if (line.startsWith('#')) continue
+		for (const line of rawValue.trim().split('\n')) {
+			if (line.trimStart()[0] === '#' || !line.trim().length) continue
+
 			value += line + '\n'
 		}
 
 		if (file.endsWith('.properties')) {
-			value = value.split('\n')
-				.sort((a, b) => a.split('=')[0].localeCompare(b.split('=')[0]))
+			value = value.trim().split('\n')
+				.sort()
 				.join('\n')
-		} else if (file.endsWith('.yml') || file.endsWith('.yaml')) {
-			value = yaml.dump(yaml.load(value), { sortKeys: true })
+		} else if (file.endsWith('.yml') || file.endsWith('.yaml')) {			
+			const quotedDecimalRegex = /: '([-+]?[0-9]*\.[0-9]+)'/g
+			const quotedReplacements = new Map()
+			let quotedCounter = 0
+			
+			value = value.replace(quotedDecimalRegex, (_, decimalValue) => {
+				const placeholder = `__QUOTED_DECIMAL_${quotedCounter++}__`
+				quotedReplacements.set(placeholder, decimalValue)
+				return `: ${placeholder}`
+			})
+			
+			const unquotedDecimalRegex = /: ([-+]?[0-9]*\.[0-9]+)(\s|$)/g
+			const unquotedReplacements = new Map()
+			let unquotedCounter = 0
+			
+			value = value.replace(unquotedDecimalRegex, (_, decimalValue, ending) => {
+				const placeholder = `__UNQUOTED_DECIMAL_${unquotedCounter++}__`
+				unquotedReplacements.set(placeholder, decimalValue)
+				return `: ${placeholder}${ending}`
+			})
+			
+			const loadedData = yaml.load(value)
+			
+			value = yaml.dump(loadedData, { 
+				sortKeys: true,
+				noArrayIndent: true,
+				lineWidth: Infinity
+			})
+			
+			quotedReplacements.forEach((decimalValue, placeholder) => {
+				value = value.replace(new RegExp(`${placeholder}`, 'g'), `'${decimalValue}'`)
+			})
+			
+			unquotedReplacements.forEach((decimalValue, placeholder) => {
+				value = value.replace(new RegExp(`${placeholder}`, 'g'), decimalValue)
+			})
 		}
 
 		if (file === 'velocity.toml') {
-			value = value.replace(/forwarding-secret = "(.*)"/, 'forwarding-secret="xxx"')
+			value = value.replace(/forwarding-secret = "(.*)"/, 'forwarding-secret = "xxx"')
 		}
 
 		if (file === 'config.yml') {
@@ -645,7 +680,7 @@ export default Object.assign(db as DbWithoutWrite, {
 			value = value.replace(/server-id: (.*)/, 'server-id: xxx')
 		}
 
-		value = value.trim()
+		value = value
 			.replace(/seed-(.*)=(.*)/g, 'seed-$1=xxx')
 			.replace(/seed-(.*): (.*)/g, 'seed-$1: xxx')
 

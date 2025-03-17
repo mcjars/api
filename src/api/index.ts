@@ -195,6 +195,8 @@ const userValidator = new server.Validator()
 
 		await ctr["@"].database.write.update(ctr["@"].database.schema.userSessions)
 			.set({
+				ip: ctr.client.ip.long(),
+				userAgent: ctr.client.userAgent,
 				lastUsed: new Date()
 			})
 			.where(eq(ctr["@"].database.schema.userSessions.id, user.sessionId))

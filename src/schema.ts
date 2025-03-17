@@ -140,6 +140,9 @@ export const userSessions = pgTable('user_sessions', {
 
 	session: char('session', { length: 64 }).notNull(),
 
+	ip: inet('ip').notNull(),
+	userAgent: varchar('user_agent', { length: 255 }).notNull(),
+
 	lastUsed: timestamp('last_used').default(sql`now()`).notNull(),
 	created: timestamp('created').default(sql`now()`).notNull()
 }, (userSessions) => [
