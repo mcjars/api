@@ -157,7 +157,7 @@ mod post {
                     );
                 }
 
-                let mut results = Vec::new();
+                let mut results = Vec::with_capacity(searches.len());
                 for search in searches {
                     results.push(lookup_build(&state.database, &state.cache, search));
                 }
@@ -260,38 +260,60 @@ mod post {
                     SELECT {}
                     FROM {}
                     WHERE {}
+                    ORDER BY builds.id DESC
                     LIMIT 1
-                )
+                ),
     
-                , filtered_builds AS (
+                filtered_builds AS (
                     SELECT {}
                     FROM builds b
-                    INNER JOIN spec_build sb
-                        ON sb.id = b.id 
+                    INNER JOIN spec_build sb ON
+                        sb.id = b.id
                         OR (COALESCE(sb.version_id, sb.project_version_id) = COALESCE(b.version_id, b.project_version_id) AND sb.type = b.type::text)
-                    WHERE b.type != 'ARCLIGHT' OR (
-                        (sb.project_version_id LIKE '%-fabric' AND b.project_version_id LIKE '%-fabric')
-                        OR (sb.project_version_id LIKE '%-forge' AND b.project_version_id LIKE '%-forge')
-                        OR (sb.project_version_id LIKE '%-neoforge' AND b.project_version_id LIKE '%-neoforge')
-                        OR (sb.project_version_id NOT LIKE '%-fabric' AND sb.project_version_id NOT LIKE '%-forge' AND sb.project_version_id NOT LIKE '%-neoforge')
+                    WHERE b.type <> 'ARCLIGHT'
+                        OR split_part(sb.project_version_id, '-', -1) = split_part(b.project_version_id, '-', -1)
+                        OR split_part(sb.project_version_id, '-', -1) NOT IN ('forge', 'neoforge', 'fabric')
+                ),
+
+                build_count AS (
+                    SELECT count(*) AS count
+                    FROM builds
+                    WHERE COALESCE(version_id, project_version_id) = COALESCE(
+                        (SELECT version_id FROM spec_build),
+                        (SELECT project_version_id FROM spec_build)
                     )
                 )
     
-                SELECT *, 0 AS build_count, now()::timestamp as version2_created, '' AS _version_id, 'RELEASE' AS version_type, false AS version_supported, 0 AS version_java, now() AS version_created
+                SELECT
+                    *,
+                    0 AS build_count,
+                    now()::timestamp as version2_created,
+                    'RELEASE' AS version_type,
+                    false AS version_supported,
+                    0 AS version_java,
+                    now()::timestamp AS version_created
                 FROM spec_build
     
                 UNION ALL
     
-                SELECT x.*, mv.*
+                SELECT
+                    x.*,
+                    mv.type::text AS version_type,
+                    mv.supported AS version_supported,
+                    mv.java AS version_java,
+                    mv.created AS version_created
                 FROM (
                     SELECT *
                     FROM (
-                        SELECT {}, count(1) OVER () AS build_count, min(b.created) OVER () AS version2_created
+                        SELECT
+                            {},
+                            (SELECT count FROM build_count) AS build_count,
+                            min(b.created) OVER () AS version2_created
                         FROM filtered_builds b
                         ORDER BY b.id DESC
                     ) LIMIT 1
                 ) x
-                LEFT JOIN minecraft_versions mv ON mv.id = x.version_id;
+                LEFT JOIN minecraft_versions mv ON mv.id = x.version_id
                 "#,
                 Build::columns_sql(None, None),
                 if search.hash.as_ref().map(|h| h.any()).unwrap_or(false) {
@@ -360,7 +382,7 @@ mod post {
                     builds: query[1].try_get("build_count").unwrap_or(0),
                     created: query[1]
                         .try_get("version_created")
-                        .unwrap_or(query[1].get("version2_created")),
+                        .unwrap_or(query[1].try_get("version2_created").unwrap_or_default()),
                 },
                 configs
             })
