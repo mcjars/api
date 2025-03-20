@@ -182,7 +182,10 @@ impl RequestLogger {
         self.processing.lock().await.push(pending.remove(index));
     }
 
-    async fn lookup_ips(&self, ips: &[String]) -> HashMap<String, (String, String)> {
+    async fn lookup_ips(
+        &self,
+        ips: &[String],
+    ) -> Result<HashMap<String, (String, String)>, reqwest::Error> {
         let mut result = HashMap::new();
 
         let data = reqwest::Client::new()
@@ -200,11 +203,9 @@ impl RequestLogger {
                     .collect::<Vec<_>>(),
             )
             .send()
-            .await
-            .unwrap()
+            .await?
             .json::<Vec<serde_json::Value>>()
-            .await
-            .unwrap();
+            .await?;
 
         for entry in data {
             if entry.get("continentCode").is_none() || entry.get("countryCode").is_none() {
@@ -220,7 +221,7 @@ impl RequestLogger {
             );
         }
 
-        result
+        Ok(result)
     }
 
     pub async fn process(&self) {
@@ -243,7 +244,8 @@ impl RequestLogger {
                     .collect::<Vec<_>>()
                     .as_slice(),
             )
-            .await;
+            .await
+            .unwrap_or_default();
 
         for r in requests.iter_mut() {
             if let Some((continent, country)) = ips.get(&r.ip.to_string()) {
