@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-binaries:
+    name: Build Binaries
     strategy:
       matrix:
         include:
@@ -16,7 +17,6 @@ jobs:
           - arch: arm64
             runner: ubuntu-24.04-arm
             target: aarch64-unknown-linux-musl
-
     runs-on: ${{ matrix.runner }}
 
     steps:
@@ -56,6 +56,7 @@ jobs:
           retention-days: 1
 
   create-multiarch-image:
+    name: Create multi-arch Docker image
     needs: build-binaries
     runs-on: ubuntu-latest
     permissions:
@@ -64,7 +65,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download all binary artifacts
         uses: actions/download-artifact@v3
