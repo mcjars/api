@@ -3,7 +3,9 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod post {
     use crate::{
-        models::{build::Build, config::Format, r#type::ServerType, version::MinifiedVersion, BaseModel},
+        models::{
+            BaseModel, build::Build, config::Format, r#type::ServerType, version::MinifiedVersion,
+        },
         routes::{ApiError, GetState},
     };
     use axum::http::StatusCode;
@@ -73,7 +75,7 @@ mod post {
     #[derive(ToSchema, Serialize, Deserialize)]
     #[serde(untagged)]
     pub enum Payload {
-        One(#[schema(inline)] BuildSearch),
+        One(#[schema(inline)] Box<BuildSearch>),
         Many(#[schema(inline)] Vec<BuildSearch>),
     }
 
@@ -123,7 +125,7 @@ mod post {
     ) -> (StatusCode, axum::Json<serde_json::Value>) {
         match data {
             Payload::One(search) => {
-                if let Some(result) = lookup_build(&state.database, &state.cache, &search).await {
+                if let Some(result) = lookup_build(&state.database, &state.cache, *search).await {
                     (
                         StatusCode::OK,
                         axum::Json(
@@ -148,14 +150,19 @@ mod post {
                 if searches.len() > 10 {
                     return (
                         StatusCode::PAYLOAD_TOO_LARGE,
-                        axum::Json(ApiError::new(&["you can only search for up to 10 builds at a time"]).to_value()),
+                        axum::Json(
+                            ApiError::new(&["you can only search for up to 10 builds at a time"])
+                                .to_value(),
+                        ),
                     );
                 }
 
                 let mut results = Vec::new();
                 for search in searches {
-                    results.push(lookup_build(&state.database, &state.cache, &search).await);
+                    results.push(lookup_build(&state.database, &state.cache, search));
                 }
+
+                let results = futures_util::future::join_all(results).await;
 
                 (
                     StatusCode::MULTI_STATUS,
@@ -175,13 +182,17 @@ mod post {
         s.replace('\'', "''")
     }
 
-    async fn lookup_build(database: &crate::database::Database, cache: &crate::cache::Cache, search: &BuildSearch) -> Option<Result> {
+    async fn lookup_build(
+        database: &crate::database::Database,
+        cache: &crate::cache::Cache,
+        search: BuildSearch,
+    ) -> Option<Result> {
         if !search.any() {
             return None;
         }
 
         let mut sha1 = sha1::Sha1::new();
-        sha1.update(serde_json::to_string(search).unwrap().as_bytes());
+        sha1.update(serde_json::to_string(&search).unwrap().as_bytes());
         let identifier = format!("{:x}", sha1.finalize());
 
         cache.cached(&format!("build::{}", identifier), 3600, || async {
@@ -296,7 +307,7 @@ mod post {
             .fetch_all(database.read())
             .await
             .unwrap();
-    
+
             if query.len() != 2 {
                 return None;
             }
@@ -330,7 +341,7 @@ mod post {
                     ConfigValue { r#type, format, value },
                 );
             }
-    
+
             Some(Result {
                 build: Build::map(None, &query[0]),
                 latest: Build::map(None, &query[1]),

@@ -67,6 +67,7 @@ dependencies = [
  "chrono",
  "colored",
  "dotenvy",
+ "futures-util",
  "image",
  "indexmap",
  "rand 0.9.0",

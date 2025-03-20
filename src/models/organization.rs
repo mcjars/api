@@ -82,9 +82,7 @@ impl BaseModel for Organization {
             icon: row.get(format!("{}icon", prefix).as_str()),
             types: serde_json::from_value(row.get(format!("{}types", prefix).as_str())).unwrap(),
 
-            subuser_pending: row
-                .try_get("pending")
-                .unwrap_or(false),
+            subuser_pending: row.try_get("pending").unwrap_or(false),
             created: row.get(format!("{}created", prefix).as_str()),
         }
     }
