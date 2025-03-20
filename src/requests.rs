@@ -144,7 +144,7 @@ impl RequestLogger {
             user_agent: request
                 .headers
                 .get("User-Agent")
-                .map(|ua| ua.to_str().unwrap())
+                .map(|ua| ua.to_str().unwrap_or("unknown"))
                 .unwrap_or("unknown")
                 .to_string(),
             created: chrono::Utc::now().naive_utc(),

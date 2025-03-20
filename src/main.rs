@@ -77,7 +77,10 @@ async fn handle_postprocessing(req: Request, next: Next) -> Result<Response, Sta
     let mut hash = sha1::Sha1::new();
 
     if let Some(content_type) = response.headers().get("Content-Type").cloned() {
-        if content_type.to_str().unwrap().starts_with("text/plain")
+        if content_type
+            .to_str()
+            .map(|c| c.starts_with("text/plain"))
+            .unwrap_or(false)
             && response.status().is_client_error()
         {
             let (mut parts, body) = response.into_parts();
