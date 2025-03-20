@@ -1,13 +1,14 @@
 # api - MCJars Minecraft Versions API
 
-mcvapi (versions-worker) is an api tool for retrieving Minecraft server versions. It allows you to easily download, install, and lookup Minecraft server versions. This is the api part that runs on 6 HA Hetzner VMs with 3 Load Balancers.
+"mcvapi" is an api tool for retrieving Minecraft server versions. It allows you to easily download, install, and lookup Minecraft server versions. This is the api part that runs on 6 HA Hetzner VMs with 3 Load Balancers.
 
 ## Features
 
 - Runs in Docker for high availability
-- Fast Reverse Hash Lookup (< 2ms)
+- Fast Reverse Hash Lookup (< 50ms)
 - Data is cached for fast repeated retrievals
 - Servers in Germany, Hillsboro (Oregon, US), and Ashburn (Virginia, US)
+- Blazingly 🔥 fast 🚀, written in 100% safe Rust. 🦀
 
 ## Developing
 
