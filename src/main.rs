@@ -28,6 +28,7 @@ use utoipa_axum::router::OpenApiRouter;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const GIT_COMMIT: &str = env!("CARGO_GIT_COMMIT");
+const BLACKLISTED_HEADERS: [&str; 3] = ["content-encoding", "transfer-encoding", "connection"];
 
 fn handle_panic(_err: Box<dyn std::any::Any + Send + 'static>) -> Response<Body> {
     logger::log(
@@ -206,6 +207,50 @@ async fn main() {
 
                 (StatusCode::FOUND, headers, "")
             }),
+        )
+        .route(
+            "/download/fabric/{version}/{project_version}/{installer_version}",
+            get(
+                |Path::<(String, String, String)>((
+                    version,
+                    project_version,
+                    installer_version,
+                ))| async move {
+                    let mut headers = HeaderMap::new();
+
+                    let response = reqwest::get(
+                        format!(
+                            "https://meta.fabricmc.net/v2/versions/loader/{}/{}/{}/server/jar",
+                            version,
+                            project_version,
+                            installer_version.replace(".jar", "")
+                        )
+                        .as_str(),
+                    )
+                    .await
+                    .unwrap();
+
+                    if !response.status().is_success() {
+                        return (
+                            StatusCode::NOT_FOUND,
+                            headers,
+                            Body::from("build not found".to_string().into_bytes()),
+                        );
+                    }
+
+                    for (key, value) in response.headers().iter() {
+                        if !BLACKLISTED_HEADERS.contains(&key.as_str()) {
+                            headers.insert(key, value.clone());
+                        }
+                    }
+
+                    (
+                        response.status(),
+                        headers,
+                        Body::from(response.bytes().await.unwrap().to_vec()),
+                    )
+                },
+            ),
         )
         .fallback(|| async {
             (
