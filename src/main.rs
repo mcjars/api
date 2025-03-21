@@ -173,98 +173,118 @@ async fn main() {
         });
     }
 
-    let app = OpenApiRouter::new()
-        .nest("/api", routes::router(&state))
-        .route(
-            "/",
-            get(|| async move {
-                let mut headers = HeaderMap::new();
-
-                headers.insert("Content-Type", "text/html".parse().unwrap());
-
-                (
-                    StatusCode::OK,
-                    headers,
-                    include_str!("../static/index.html"),
-                )
-            }),
-        )
-        .route(
-            "/icons/{type}",
-            get(|state: GetState, Path::<ServerType>(r#type)| async move {
-                let mut headers = HeaderMap::new();
-
-                headers.insert(
-                    "Location",
-                    format!(
-                        "{}/icons/{}.png",
-                        state.env.s3_url,
-                        r#type.to_string().to_lowercase()
-                    )
-                    .parse()
-                    .unwrap(),
-                );
-
-                (StatusCode::FOUND, headers, "")
-            }),
-        )
-        .route(
-            "/download/fabric/{version}/{project_version}/{installer_version}",
-            get(
-                |Path::<(String, String, String)>((
-                    version,
-                    project_version,
-                    installer_version,
-                ))| async move {
+    let app =
+        OpenApiRouter::new()
+            .nest("/api", routes::router(&state))
+            .route(
+                "/",
+                get(|| async move {
                     let mut headers = HeaderMap::new();
 
-                    let response = reqwest::get(
-                        format!(
-                            "https://meta.fabricmc.net/v2/versions/loader/{}/{}/{}/server/jar",
-                            version,
-                            project_version,
-                            installer_version.replace(".jar", "")
-                        )
-                        .as_str(),
-                    )
-                    .await
-                    .unwrap();
-
-                    if !response.status().is_success() {
-                        return (
-                            StatusCode::NOT_FOUND,
-                            headers,
-                            Body::from("build not found".to_string().into_bytes()),
-                        );
-                    }
-
-                    for (key, value) in response.headers().iter() {
-                        if !BLACKLISTED_HEADERS.contains(&key.as_str()) {
-                            headers.insert(key, value.clone());
-                        }
-                    }
+                    headers.insert("Content-Type", "text/html".parse().unwrap());
 
                     (
-                        response.status(),
+                        StatusCode::OK,
                         headers,
-                        Body::from(response.bytes().await.unwrap().to_vec()),
+                        include_str!("../static/index.html"),
                     )
-                },
-            ),
-        )
-        .fallback(|| async {
-            (
-                StatusCode::NOT_FOUND,
-                axum::Json(ApiError::new(&["route not found"])),
+                }),
             )
-        })
-        .layer(CatchPanicLayer::custom(handle_panic))
-        .layer(CorsLayer::very_permissive())
-        .layer(TraceLayer::new_for_http().on_request(handle_request))
-        .layer(CookieManagerLayer::new())
-        .route_layer(axum::middleware::from_fn(handle_postprocessing))
-        .route_layer(SentryHttpLayer::with_transaction())
-        .with_state(state.clone());
+            .route(
+                "/icons/{type}",
+                get(|state: GetState, Path::<ServerType>(r#type)| async move {
+                    let mut headers = HeaderMap::new();
+
+                    headers.insert(
+                        "Location",
+                        format!(
+                            "{}/icons/{}.png",
+                            state.env.s3_url,
+                            r#type.to_string().to_lowercase()
+                        )
+                        .parse()
+                        .unwrap(),
+                    );
+
+                    (StatusCode::FOUND, headers, "")
+                }),
+            )
+            .route(
+                "/download/{project}/{version}/{project_version}/{installer_version}",
+                get(
+                    |Path::<(String, String, String, String)>((
+                        project,
+                        version,
+                        project_version,
+                        installer_version,
+                    ))| async move {
+                        let mut headers = HeaderMap::new();
+
+                        let response = match project.as_str() {
+                            "fabric" => reqwest::get(
+                                format!(
+                                    "https://meta.fabricmc.net/v2/versions/loader/{}/{}/{}/server/jar",
+                                    version,
+                                    project_version,
+                                    installer_version.replace(".jar", "")
+                                )
+                                .as_str(),
+                            )
+                            .await
+                            .unwrap(),
+                            "legacy-fabric" => reqwest::get(
+                                format!(
+                                    "https://meta.legacyfabric.net/v2/versions/loader/{}/{}/{}/server/jar",
+                                    version,
+                                    project_version,
+                                    installer_version.replace(".jar", "")
+                                )
+                                .as_str(),
+                            )
+                            .await
+                            .unwrap(),
+                            _ => return (
+                                StatusCode::NOT_FOUND,
+                                headers,
+                                Body::from("project not supported".to_string().into_bytes()),
+                            ),
+                        };
+
+                        if !response.status().is_success() {
+                            return (
+                                StatusCode::NOT_FOUND,
+                                headers,
+                                Body::from("build not found".to_string().into_bytes()),
+                            );
+                        }
+
+                        for (key, value) in response.headers().iter() {
+                            if !BLACKLISTED_HEADERS.contains(&key.as_str()) {
+                                headers.insert(key, value.clone());
+                            }
+                        }
+
+                        (
+                            response.status(),
+                            headers,
+                            Body::from(response.bytes().await.unwrap().to_vec()),
+                        )
+                    },
+                ),
+            )
+            .fallback(|| async {
+                (
+                    StatusCode::NOT_FOUND,
+                    axum::Json(ApiError::new(&["route not found"])),
+                )
+            })
+            .layer(CatchPanicLayer::custom(handle_panic))
+            .layer(CorsLayer::very_permissive())
+            .layer(TraceLayer::new_for_http().on_request(handle_request))
+            .layer(CookieManagerLayer::new())
+            .route_layer(axum::middleware::from_fn(handle_postprocessing))
+            .route_layer(SentryHttpLayer::with_transaction())
+            .with_state(state.clone());
 
     let listener = tokio::net::TcpListener::bind(format!("{}:{}", &state.env.bind, state.env.port))
         .await
