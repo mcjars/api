@@ -75,7 +75,6 @@ async fn handle_postprocessing(req: Request, next: Next) -> Result<Response, Sta
     let if_none_match = req.headers().get("If-None-Match").cloned();
 
     let mut response = next.run(req).await;
-    let mut hash = sha1::Sha1::new();
 
     if let Some(content_type) = response.headers().get("Content-Type").cloned() {
         if content_type
@@ -110,6 +109,7 @@ async fn handle_postprocessing(req: Request, next: Next) -> Result<Response, Sta
     let (mut parts, body) = response.into_parts();
     let body_bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
 
+    let mut hash = sha1::Sha1::new();
     hash.update(body_bytes.as_ref());
     let hash = format!("{:x}", hash.finalize());
 
@@ -246,7 +246,7 @@ async fn main() {
                             _ => return (
                                 StatusCode::NOT_FOUND,
                                 headers,
-                                Body::from("project not supported".to_string().into_bytes()),
+                                Body::from(b"project not supported".to_vec()),
                             ),
                         };
 
@@ -254,7 +254,7 @@ async fn main() {
                             return (
                                 StatusCode::NOT_FOUND,
                                 headers,
-                                Body::from("build not found".to_string().into_bytes()),
+                                Body::from(b"build not found".to_vec()),
                             );
                         }
 
@@ -267,7 +267,7 @@ async fn main() {
                         (
                             response.status(),
                             headers,
-                            Body::from(response.bytes().await.unwrap().to_vec()),
+                            Body::from(response.bytes().await.unwrap()),
                         )
                     },
                 ),

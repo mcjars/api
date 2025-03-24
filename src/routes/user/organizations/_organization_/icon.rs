@@ -3,7 +3,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod post {
     use crate::routes::{ApiError, GetState, user::organizations::_organization_::GetOrganization};
-    use axum::body::Bytes;
+    use axum::{body::Bytes, http::StatusCode};
     use image::{ImageReader, codecs::webp::WebPEncoder, imageops::FilterType};
     use rustis::commands::GenericCommands;
     use serde::{Deserialize, Serialize};
@@ -29,15 +29,21 @@ mod post {
         state: GetState,
         mut organization: GetOrganization,
         image: Bytes,
-    ) -> axum::Json<serde_json::Value> {
+    ) -> (StatusCode, axum::Json<serde_json::Value>) {
         let image = ImageReader::new(std::io::Cursor::new(image)).with_guessed_format();
         if image.is_err() {
-            return axum::Json(ApiError::new(&["invalid image"]).to_value());
+            return (
+                StatusCode::BAD_REQUEST,
+                axum::Json(ApiError::new(&["invalid image"]).to_value()),
+            );
         }
 
         let image = image.unwrap().decode();
         if image.is_err() {
-            return axum::Json(ApiError::new(&["invalid image"]).to_value());
+            return (
+                StatusCode::BAD_REQUEST,
+                axum::Json(ApiError::new(&["invalid image"]).to_value()),
+            );
         }
 
         let image = image.unwrap().resize_exact(512, 512, FilterType::Triangle);
@@ -86,7 +92,10 @@ mod post {
             state.cache.client.del(keys).await.unwrap();
         }
 
-        axum::Json(serde_json::to_value(&Response { success: true, url }).unwrap())
+        (
+            StatusCode::OK,
+            axum::Json(serde_json::to_value(&Response { success: true, url }).unwrap()),
+        )
     }
 }
 
