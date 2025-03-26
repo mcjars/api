@@ -4,10 +4,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 mod history;
 
 mod get {
-    use crate::{
-        models::r#type::{SERVER_TYPES_WITH_PROJECT_AS_IDENTIFIER, ServerType},
-        routes::GetState,
-    };
+    use crate::{models::r#type::ServerType, routes::GetState};
     use axum::extract::Path;
     use indexmap::IndexMap;
     use serde::{Deserialize, Serialize};
@@ -59,76 +56,32 @@ mod get {
         let requests = state
             .cache
             .cached(&format!("requests::types::{}", r#type), 10800, || async {
-                let project_key = format!("versions::all::project::{}", r#type);
-                let (data, minecraft_versions, project_versions) = tokio::join!(
-                    sqlx::query(
-                        r#"
+                let data = sqlx::query(
+                    r#"
+                    SELECT
+                        x.version AS version,
+                        COUNT(*) AS total,
+                        COUNT(DISTINCT ip) AS unique_ips
+                    FROM (
                         SELECT
-                            COUNT(*) AS total,
-                            COUNT(DISTINCT ip) AS unique_ips,
-                            CASE
-                                WHEN LENGTH(requests.path) > $1
-                                THEN UPPER(
-                                    SPLIT_PART(
-                                        SPLIT_PART(
-                                            SUBSTR(requests.path, $1 + 1),
-                                            '?',
-                                            1
-                                        ),
-                                        '/',
-                                        1
-                                    )
-                                )
-                                ELSE '/'
-                            END AS version
+                            requests.data->'search'->>'version' AS version,
+                            requests.ip AS ip
                         FROM requests
                         WHERE
                             requests.status = 200
                             AND requests.data IS NOT NULL
                             AND requests.path NOT LIKE '%tracking=nostats%'
-                            AND requests.path LIKE '/api/v_/builds/' || $2 || '%'
-                        GROUP BY version
-                        ORDER BY total DESC
-                        "#,
-                    )
-                    .bind(format!("/api/v_/builds/{}/", r#type).len() as i32)
-                    .bind(r#type.to_string())
-                    .fetch_all(state.database.read()),
-                    state
-                        .cache
-                        .cached("versions::all::minecraft", 10800, || async {
-                            let data: Vec<Id> = sqlx::query_as(
-                                r#"
-                                SELECT id
-                                FROM minecraft_versions
-                                "#,
-                            )
-                            .fetch_all(state.database.read())
-                            .await
-                            .unwrap();
-
-                            data
-                        }),
-                    state.cache.cached(&project_key, 10800, || async {
-                        if !SERVER_TYPES_WITH_PROJECT_AS_IDENTIFIER.contains(&r#type) {
-                            return Vec::new();
-                        }
-
-                        let data: Vec<Id> = sqlx::query_as(
-                            r#"
-                            SELECT id
-                            FROM project_versions
-                            WHERE type = $1::server_type
-                            "#,
-                        )
-                        .bind(r#type.to_string())
-                        .fetch_all(state.database.read())
-                        .await
-                        .unwrap();
-
-                        data
-                    },)
-                );
+                            AND requests.data->>'type' = 'builds'
+                            AND requests.data->'search'->>'type' = $1
+                    ) AS x
+                    GROUP BY x.version
+                    ORDER BY total DESC
+                    "#,
+                )
+                .bind(r#type.to_string())
+                .fetch_all(state.database.read())
+                .await
+                .unwrap();
 
                 let mut requests = Requests {
                     root: TypeStats {
@@ -138,36 +91,22 @@ mod get {
                     versions: IndexMap::new(),
                 };
 
-                for row in data.unwrap() {
-                    let version = row.get::<String, _>("version");
-                    if version == "/" {
+                for row in data {
+                    let version = row.get::<Option<String>, _>("version");
+
+                    if let Some(version) = version {
+                        requests.versions.insert(
+                            version,
+                            TypeStats {
+                                total: row.get("total"),
+                                unique_ips: row.get("unique_ips"),
+                            },
+                        );
+                    } else {
                         requests.root = TypeStats {
                             total: row.get("total"),
                             unique_ips: row.get("unique_ips"),
                         };
-                    } else {
-                        let version = if !SERVER_TYPES_WITH_PROJECT_AS_IDENTIFIER.contains(&r#type)
-                        {
-                            minecraft_versions
-                                .iter()
-                                .find(|v| version == v.id.to_uppercase())
-                                .map(|v| v.id.clone())
-                        } else {
-                            project_versions
-                                .iter()
-                                .find(|v| version == v.id.to_uppercase())
-                                .map(|v| v.id.clone())
-                        };
-
-                        if let Some(version) = version {
-                            requests.versions.insert(
-                                version,
-                                TypeStats {
-                                    total: row.get("total"),
-                                    unique_ips: row.get("unique_ips"),
-                                },
-                            );
-                        }
                     }
                 }
 

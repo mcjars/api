@@ -88,41 +88,25 @@ mod get {
                     let data = sqlx::query(
                         r#"
                         SELECT
-                            COUNT(*) AS total,
-                            COUNT(DISTINCT x.ip) AS unique_ips,
+                            x.type AS type,
                             EXTRACT(DAY FROM x.created)::smallint AS day,
-                            x.type AS type
+                            COUNT(*) AS total,
+                            COUNT(DISTINCT ip) AS unique_ips
                         FROM (
                             SELECT
-                                requests.ip AS ip,
+                                requests.data->'search'->>'type' AS type,
                                 requests.created AS created,
-                                UPPER(
-                                    SPLIT_PART(
-                                        SPLIT_PART(
-                                            SUBSTR(requests.path, 16),
-                                            '?',
-                                            1
-                                        ),
-                                        '/',
-                                        1
-                                    )
-                                ) AS type
+                                requests.ip AS ip
                             FROM requests
                             WHERE
                                 requests.status = 200
+                                AND requests.data IS NOT NULL
                                 AND requests.path NOT LIKE '%tracking=nostats%'
-                                AND requests.path LIKE '/api/v_/builds/%'
-                                AND requests.path LIKE '%/' || $1 || '%'
+                                AND requests.data->>'type' = 'builds'
+                                AND requests.data->'search'->>'version' = $1
                                 AND requests.created >= $2
                                 AND requests.created <= $3
                         ) AS x
-                        WHERE
-                            EXISTS(
-                                SELECT 1
-                                FROM pg_enum
-                                WHERE enumtypid = 'server_type'::regtype::oid
-                                AND enumlabel = x.type
-                            )
                         GROUP BY day, x.type
                         ORDER BY total DESC
                         "#,

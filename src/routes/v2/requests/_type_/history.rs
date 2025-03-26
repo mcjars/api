@@ -3,7 +3,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod get {
     use crate::{
-        models::r#type::{SERVER_TYPES_WITH_PROJECT_AS_IDENTIFIER, ServerType},
+        models::r#type::ServerType,
         routes::{ApiError, GetState},
     };
     use axum::{extract::Path, http::StatusCode};
@@ -100,81 +100,38 @@ mod get {
                 &format!("requests::types::{}::history::{}::{}", r#type, start, end),
                 10800,
                 || async {
-                    let project_key = format!("versions::all::project::{}", r#type);
-                    let (data, minecraft_versions, project_versions) = tokio::join!(
-                        sqlx::query(
-                            r#"
+                    let data = sqlx::query(
+                        r#"
+                        SELECT
+                            x.version AS version,
+                            EXTRACT(DAY FROM x.created)::smallint AS day,
+                            COUNT(*) AS total,
+                            COUNT(DISTINCT ip) AS unique_ips
+                        FROM (
                             SELECT
-                                COUNT(*) AS total,
-                                COUNT(DISTINCT ip) AS unique_ips,
-                                EXTRACT(DAY FROM requests.created)::smallint AS day,
-                                CASE
-                                    WHEN LENGTH(requests.path) > $1
-                                    THEN UPPER(
-                                        SPLIT_PART(
-                                            SPLIT_PART(
-                                                SUBSTR(requests.path, $1 + 1),
-                                                '?',
-                                                1
-                                            ),
-                                            '/',
-                                            1
-                                        )
-                                    )
-                                    ELSE '/'
-                                END AS version
+                                requests.data->'search'->>'version' AS version,
+                                requests.created AS created,
+                                requests.ip AS ip
                             FROM requests
                             WHERE
                                 requests.status = 200
                                 AND requests.data IS NOT NULL
                                 AND requests.path NOT LIKE '%tracking=nostats%'
-                                AND requests.path LIKE '/api/v_/builds/' || $2 || '%'
-                                AND requests.created >= $3
-                                AND requests.created <= $4
-                            GROUP BY version, day
-                            ORDER BY day ASC
-                            "#,
-                        )
-                        .bind(format!("/api/v_/builds/{}/", r#type).len() as i32)
-                        .bind(r#type.to_string())
-                        .bind(start)
-                        .bind(end)
-                        .fetch_all(state.database.read()),
-                        state
-                            .cache
-                            .cached("versions::all::minecraft", 10800, || async {
-                                let data: Vec<Id> = sqlx::query_as(
-                                    r#"
-                                    SELECT id
-                                    FROM minecraft_versions
-                                    "#,
-                                )
-                                .fetch_all(state.database.read())
-                                .await
-                                .unwrap();
-
-                                data
-                            }),
-                        state.cache.cached(&project_key, 10800, || async {
-                            if !SERVER_TYPES_WITH_PROJECT_AS_IDENTIFIER.contains(&r#type) {
-                                return Vec::new();
-                            }
-
-                            let data: Vec<Id> = sqlx::query_as(
-                                r#"
-                                SELECT id
-                                FROM project_versions
-                                WHERE type = $1::server_type
-                                "#,
-                            )
-                            .bind(r#type.to_string())
-                            .fetch_all(state.database.read())
-                            .await
-                            .unwrap();
-
-                            data
-                        },)
-                    );
+                                AND requests.data->>'type' = 'builds'
+                                AND requests.data->'search'->>'type' = $1
+                                AND requests.created >= $2
+                                AND requests.created <= $3
+                        ) AS x
+                        GROUP BY day, x.version
+                        ORDER BY total DESC
+                        "#,
+                    )
+                    .bind(r#type.to_string())
+                    .bind(start)
+                    .bind(end)
+                    .fetch_all(state.database.read())
+                    .await
+                    .unwrap();
 
                     let mut requests: Vec<Requests> = Vec::with_capacity(end.day() as usize);
 
@@ -189,51 +146,32 @@ mod get {
                         });
                     }
 
-                    for row in data.unwrap() {
-                        let mut version = row.get::<String, _>("version");
+                    for row in data {
+                        let version = row.get::<Option<String>, _>("version");
 
-                        if version == "/" {
-                            requests[row.get::<i16, _>("day") as usize - 1].root = TypeStats {
+                        if let Some(version) = version {
+                            let day = row.get::<i16, _>("day") as usize - 1;
+
+                            if !requests[day].versions.contains_key(&version) {
+                                requests[day].versions.insert(
+                                    version.clone(),
+                                    TypeStats {
+                                        total: 0,
+                                        unique_ips: 0,
+                                    },
+                                );
+                            }
+
+                            let entry = requests[day].versions.get_mut(&version).unwrap();
+                            entry.total = row.get::<i64, _>("total");
+                            entry.unique_ips = row.get::<i64, _>("unique_ips");
+                        } else {
+                            let day = row.get::<i16, _>("day") as usize - 1;
+                            requests[day].root = TypeStats {
                                 total: row.get::<i64, _>("total"),
                                 unique_ips: row.get::<i64, _>("unique_ips"),
                             };
-
-                            continue;
                         }
-
-                        if SERVER_TYPES_WITH_PROJECT_AS_IDENTIFIER.contains(&r#type) {
-                            if let Some(v) = project_versions
-                                .iter()
-                                .find(|v| v.id.to_uppercase() == version)
-                            {
-                                version = v.id.clone();
-                            } else {
-                                continue;
-                            }
-                        } else if let Some(v) = minecraft_versions
-                            .iter()
-                            .find(|v| v.id.to_uppercase() == version)
-                        {
-                            version = v.id.clone();
-                        } else {
-                            continue;
-                        }
-
-                        let day = row.get::<i16, _>("day") as usize - 1;
-
-                        if !requests[day].versions.contains_key(&version) {
-                            requests[day].versions.insert(
-                                version.clone(),
-                                TypeStats {
-                                    total: 0,
-                                    unique_ips: 0,
-                                },
-                            );
-                        }
-
-                        let entry = requests[day].versions.get_mut(&version).unwrap();
-                        entry.total = row.get::<i64, _>("total");
-                        entry.unique_ips = row.get::<i64, _>("unique_ips");
                     }
 
                     requests
