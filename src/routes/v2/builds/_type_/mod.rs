@@ -6,11 +6,12 @@ mod _version_;
 mod get {
     use crate::{
         models::{r#type::ServerType, version::Version},
-        routes::GetState,
+        routes::{GetData, GetState},
     };
     use axum::extract::Path;
     use indexmap::IndexMap;
     use serde::{Deserialize, Serialize};
+    use serde_json::json;
     use utoipa::ToSchema;
 
     #[derive(ToSchema, Serialize, Deserialize)]
@@ -30,9 +31,17 @@ mod get {
     ))]
     pub async fn route(
         state: GetState,
+        request_data: GetData,
         Path(r#type): Path<ServerType>,
     ) -> axum::Json<serde_json::Value> {
         let data = Version::all(&state.database, &state.cache, r#type).await;
+
+        *request_data.lock().unwrap() = json!({
+            "type": "builds",
+            "search": {
+                "type": r#type,
+            }
+        });
 
         axum::Json(
             serde_json::to_value(&Response {

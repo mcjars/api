@@ -4,10 +4,11 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 mod get {
     use crate::{
         models::{build::Build, r#type::ServerType, version::Version},
-        routes::{ApiError, GetState},
+        routes::{ApiError, GetData, GetState},
     };
     use axum::{extract::Path, http::StatusCode};
     use serde::{Deserialize, Serialize};
+    use serde_json::json;
     use utoipa::ToSchema;
 
     #[derive(ToSchema, Serialize, Deserialize)]
@@ -33,6 +34,7 @@ mod get {
     ))]
     pub async fn route(
         state: GetState,
+        request_data: GetData,
         Path((r#type, version)): Path<(ServerType, String)>,
     ) -> (StatusCode, axum::Json<serde_json::Value>) {
         let location = Version::location(&state.database, &state.cache, r#type, &version).await;
@@ -48,6 +50,14 @@ mod get {
                     },
                 )
                 .await;
+
+            *request_data.lock().unwrap() = json!({
+                "type": "builds",
+                "search": {
+                    "type": r#type,
+                    "version": version,
+                }
+            });
 
             (
                 StatusCode::OK,

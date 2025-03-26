@@ -168,8 +168,8 @@ export const requests = pgTable('requests', {
 	created: timestamp('created').notNull()
 }, (requests) => [
 	index('requests_organization_idx').on(requests.organizationId).where(isNotNull(requests.organizationId)),
+	index('requests_status_idx').on(requests.status).where(sql`status = 200`),
 	index('requests_ip_idx').on(requests.ip),
-	index('requests_path_idx').on(requests.path),
 	index('requests_continent_idx').on(requests.continent).where(isNotNull(requests.continent)),
 	index('requests_country_idx').on(requests.country).where(isNotNull(requests.country)),
 	index('requests_data_idx').using('gin', requests.data).where(isNotNull(requests.data)),

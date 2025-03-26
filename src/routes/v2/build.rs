@@ -6,11 +6,12 @@ mod post {
         models::{
             BaseModel, build::Build, config::Format, r#type::ServerType, version::MinifiedVersion,
         },
-        routes::{ApiError, GetState},
+        routes::{ApiError, GetData, GetState},
     };
     use axum::http::StatusCode;
     use indexmap::IndexMap;
     use serde::{Deserialize, Serialize};
+    use serde_json::json;
     use sha1::Digest;
     use sqlx::Row;
     use utoipa::ToSchema;
@@ -121,11 +122,24 @@ mod post {
     ), request_body = inline(Payload))]
     pub async fn route(
         state: GetState,
+        request_data: GetData,
         axum::Json(data): axum::Json<Payload>,
     ) -> (StatusCode, axum::Json<serde_json::Value>) {
         match data {
             Payload::One(search) => {
                 if let Some(result) = lookup_build(&state.database, &state.cache, *search).await {
+                    *request_data.lock().unwrap() = json!({
+                        "type": "lookup",
+                        "build": {
+                            "id": result.build.id,
+                            "type": result.build.r#type,
+                            "versionId": result.build.version_id,
+                            "projectVersionId": result.build.project_version_id,
+                            "buildNumber": result.build.build_number,
+                            "java": result.version.java,
+                        }
+                    });
+
                     (
                         StatusCode::OK,
                         axum::Json(
@@ -163,6 +177,20 @@ mod post {
                 }
 
                 let results = futures_util::future::join_all(results).await;
+
+                if let Some(result) = results.iter().flatten().next() {
+                    *request_data.lock().unwrap() = json!({
+                        "type": "lookup",
+                        "build": {
+                            "id": result.build.id,
+                            "type": result.build.r#type,
+                            "versionId": result.build.version_id,
+                            "projectVersionId": result.build.project_version_id,
+                            "buildNumber": result.build.build_number,
+                            "java": result.version.java,
+                        }
+                    });
+                }
 
                 (
                     StatusCode::MULTI_STATUS,
