@@ -6,6 +6,6 @@ export default defineConfig({
 	schema: './src/schema.ts',
 	out: '../migrations',
 	dbCredentials: {
-		url: filesystem.env('../.env', { async: false }).DATABASE_URL_PRIMARY ?? filesystem.env('.env', { async: false }).DATABASE_URL
+		url: filesystem.env('../.env', { async: false }).DATABASE_URL_PRIMARY ?? filesystem.env('../.env', { async: false }).DATABASE_URL
 	}
 })

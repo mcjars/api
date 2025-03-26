@@ -155,6 +155,13 @@
       "when": 1741612594781,
       "tag": "0021_mushy_monster_badoon",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1743007579393,
+      "tag": "0022_square_king_cobra",
+      "breakpoints": true
     }
   ]
 }
