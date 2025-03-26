@@ -46,7 +46,7 @@ mod get {
             let mut script = format!(
                 r#"
 #!/bin/bash
-export JAVA_VERSION = {}
+export JAVA_VERSION={}
 
 echo "Installing Server"
                 "#,
