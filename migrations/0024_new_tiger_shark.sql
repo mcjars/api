@@ -54,7 +54,6 @@ WITH request_data AS (
 		data IS NOT NULL 
 		AND status = 200
 		AND path NOT LIKE '%tracking=nostats%'
-		AND created >= CURRENT_DATE - INTERVAL '35 days'
 )
 SELECT
 	request_type,
