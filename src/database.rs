@@ -78,6 +78,32 @@ impl Database {
             });
         }
 
+        if env.database_refresh {
+            let writer = instance.write.clone();
+            tokio::spawn(async move {
+                loop {
+                    tokio::time::sleep(std::time::Duration::from_secs(60 * 30)).await;
+
+                    let start = std::time::Instant::now();
+
+                    let (_, _) = tokio::join!(
+                        sqlx::query("REFRESH MATERIALIZED VIEW mv_requests_stats").execute(&writer),
+                        sqlx::query("REFRESH MATERIALIZED VIEW mv_requests_stats_daily")
+                            .execute(&writer)
+                    );
+
+                    crate::logger::log(
+                        crate::logger::LoggerLevel::Info,
+                        format!(
+                            "{} views refreshed {}",
+                            "database".bright_cyan(),
+                            format!("({}ms)", start.elapsed().as_millis()).bright_black()
+                        ),
+                    );
+                }
+            });
+        }
+
         instance
     }
 

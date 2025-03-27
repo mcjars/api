@@ -85,37 +85,30 @@ mod get {
                 &format!("lookups::versions::{}::history::{}::{}", r#type, start, end),
                 10800,
                 || async {
+                    let column = if SERVER_TYPES_WITH_PROJECT_AS_IDENTIFIER.contains(&r#type) {
+                        "project_version"
+                    } else {
+                        "version"
+                    };
+
                     let data = sqlx::query(&format!(
                         r#"
                         SELECT
-                            x.version AS version,
-                            EXTRACT(DAY FROM x.created)::smallint AS day,
-                            COUNT(*) AS total,
-                            COUNT(DISTINCT ip) AS unique_ips
-                        FROM (
-                            SELECT
-                                requests.data->'build'->>'{}' AS version,
-                                requests.created AS created,
-                                requests.ip AS ip
-                            FROM requests
-                            WHERE
-                                requests.status = 200
-                                AND requests.data IS NOT NULL
-                                AND requests.path NOT LIKE '%tracking=nostats%'
-                                AND requests.data->>'type' = 'lookup'
-                                AND requests.data->'build'->>'type' = $1
-                                AND requests.created >= $2
-                                AND requests.created <= $3
-                        ) AS x
-                        WHERE x.version IS NOT NULL
-                        GROUP BY day, x.version
-                        ORDER BY day, total DESC
+                            build_{}_id AS version,
+                            day::smallint AS day,
+                            SUM(total_requests)::bigint AS total,
+                            SUM(unique_ips)::bigint AS unique_ips
+                        FROM mv_requests_stats_daily
+                        WHERE
+                            request_type = 'lookup'
+                            AND build_type = $1
+                            AND build_{}_id IS NOT NULL
+                            AND date_only >= $2::date
+                            AND date_only <= $3::date
+                        GROUP BY day, build_{}_id
+                        ORDER BY day, SUM(total_requests) DESC
                         "#,
-                        if SERVER_TYPES_WITH_PROJECT_AS_IDENTIFIER.contains(&r#type) {
-                            "projectVersionId"
-                        } else {
-                            "versionId"
-                        }
+                        column, column, column
                     ))
                     .bind(r#type.to_string())
                     .bind(start)

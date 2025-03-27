@@ -103,26 +103,17 @@ mod get {
                     let data = sqlx::query(
                         r#"
                         SELECT
-                            x.version AS version,
-                            EXTRACT(DAY FROM x.created)::smallint AS day,
-                            COUNT(*) AS total,
-                            COUNT(DISTINCT ip) AS unique_ips
-                        FROM (
-                            SELECT
-                                requests.data->'search'->>'version' AS version,
-                                requests.created AS created,
-                                requests.ip AS ip
-                            FROM requests
-                            WHERE
-                                requests.status = 200
-                                AND requests.data IS NOT NULL
-                                AND requests.path NOT LIKE '%tracking=nostats%'
-                                AND requests.data->>'type' = 'builds'
-                                AND requests.data->'search'->>'type' = $1
-                                AND requests.created >= $2
-                                AND requests.created <= $3
-                        ) AS x
-                        GROUP BY day, x.version
+                            search_version AS version,
+                            day::smallint AS day,
+                            SUM(total_requests)::bigint AS total,
+                            SUM(unique_ips)::bigint AS unique_ips
+                        FROM mv_requests_stats_daily
+                        WHERE
+                            request_type = 'builds'
+                            AND search_type = $1
+                            AND date_only >= $2::date
+                            AND date_only <= $3::date
+                        GROUP BY day, search_version
                         ORDER BY total DESC
                         "#,
                     )

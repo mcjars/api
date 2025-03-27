@@ -172,7 +172,6 @@ export const requests = pgTable('requests', {
 	index('requests_ip_idx').on(requests.ip),
 	index('requests_continent_idx').on(requests.continent).where(isNotNull(requests.continent)),
 	index('requests_country_idx').on(requests.country).where(isNotNull(requests.country)),
-	index('requests_data_idx').using('gin', requests.data).where(isNotNull(requests.data)),
 	index('requests_created_idx').using('brin', requests.created)
 ])
 

@@ -36,22 +36,14 @@ mod get {
                 let data = sqlx::query(
                     r#"
                     SELECT
-                        x.version AS version,
-                        COUNT(*) AS total,
-                        COUNT(DISTINCT ip) AS unique_ips
-                    FROM (
-                        SELECT
-                            requests.data->'build'->>'versionId' AS version,
-                            requests.ip AS ip
-                        FROM requests
-                        WHERE
-                            requests.status = 200
-                            AND requests.data IS NOT NULL
-                            AND requests.path NOT LIKE '%tracking=nostats%'
-                            AND requests.data->>'type' = 'lookup'
-                    ) AS x
-                    WHERE x.version IS NOT NULL
-                    GROUP BY x.version
+                        build_version_id AS version,
+                        SUM(total_requests)::bigint AS total,
+                        SUM(unique_ips)::bigint AS unique_ips
+                    FROM mv_requests_stats
+                    WHERE
+                        request_type = 'lookup'
+                        AND build_version_id IS NOT NULL
+                    GROUP BY build_version_id
                     ORDER BY total DESC
                     "#,
                 )

@@ -48,22 +48,14 @@ mod get {
                     let data = sqlx::query(
                         r#"
                         SELECT
-                            x.type AS type,
-                            COUNT(*) AS total,
-                            COUNT(DISTINCT ip) AS unique_ips
-                        FROM (
-                            SELECT
-                                requests.data->'search'->>'type' AS type,
-                                requests.ip AS ip
-                            FROM requests
-                            WHERE
-                                requests.status = 200
-                                AND requests.data IS NOT NULL
-                                AND requests.path NOT LIKE '%tracking=nostats%'
-                                AND requests.data->>'type' = 'builds'
-                                AND requests.data->'search'->>'version' = $1
-                        ) AS x
-                        GROUP BY x.type
+                            search_type AS type,
+                            SUM(total_requests)::bigint AS total,
+                            SUM(unique_ips)::bigint AS unique_ips
+                        FROM mv_requests_stats
+                        WHERE
+                            request_type = 'builds'
+                            AND search_version = $1
+                        GROUP BY search_type
                         ORDER BY total DESC
                         "#,
                     )

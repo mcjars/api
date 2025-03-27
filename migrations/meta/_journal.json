@@ -169,6 +169,13 @@
       "when": 1743009360960,
       "tag": "0023_perpetual_boomer",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1743072006087,
+      "tag": "0024_new_tiger_shark",
+      "breakpoints": true
     }
   ]
 }

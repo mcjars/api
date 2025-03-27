@@ -45,33 +45,27 @@ mod get {
         let versions = state
             .cache
             .cached(&format!("lookups::versions::{}", r#type), 10800, || async {
+                let column = if SERVER_TYPES_WITH_PROJECT_AS_IDENTIFIER.contains(&r#type) {
+                    "project_version"
+                } else {
+                    "version"
+                };
+
                 let data = sqlx::query(&format!(
                     r#"
                     SELECT
-                        x.version AS version,
-                        COUNT(*) AS total,
-                        COUNT(DISTINCT ip) AS unique_ips
-                    FROM (
-                        SELECT
-                            requests.data->'build'->>'{}' AS version,
-                            requests.ip AS ip
-                        FROM requests
-                        WHERE
-                            requests.status = 200
-                            AND requests.data IS NOT NULL
-                            AND requests.path NOT LIKE '%tracking=nostats%'
-                            AND requests.data->>'type' = 'lookup'
-                            AND requests.data->'build'->>'type' = $1
-                    ) AS x
-                    WHERE x.version IS NOT NULL
-                    GROUP BY x.version
+                        build_{}_id AS version,
+                        SUM(total_requests)::bigint AS total,
+                        SUM(unique_ips)::bigint AS unique_ips
+                    FROM mv_requests_stats
+                    WHERE
+                        request_type = 'lookup'
+                        AND build_type = $1
+                        AND build_{}_id IS NOT NULL
+                    GROUP BY build_{}_id
                     ORDER BY total DESC
                     "#,
-                    if SERVER_TYPES_WITH_PROJECT_AS_IDENTIFIER.contains(&r#type) {
-                        "projectVersionId"
-                    } else {
-                        "versionId"
-                    }
+                    column, column, column
                 ))
                 .bind(r#type.to_string())
                 .fetch_all(state.database.read())

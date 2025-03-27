@@ -14,6 +14,7 @@ pub struct Env {
 
     pub sentry_url: Option<String>,
     pub database_migrate: bool,
+    pub database_refresh: bool,
     pub database_url: String,
     pub database_url_primary: Option<String>,
 
@@ -77,6 +78,11 @@ impl Env {
                 .ok()
                 .map(|s| s.trim_matches('"').to_string()),
             database_migrate: std::env::var("DATABASE_MIGRATE")
+                .unwrap_or("false".to_string())
+                .trim_matches('"')
+                .parse()
+                .unwrap(),
+            database_refresh: std::env::var("DATABASE_REFRESH")
                 .unwrap_or("false".to_string())
                 .trim_matches('"')
                 .parse()
