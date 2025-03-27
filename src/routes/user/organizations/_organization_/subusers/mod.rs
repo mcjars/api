@@ -21,7 +21,7 @@ mod get {
 
     #[utoipa::path(get, path = "/", responses(
         (status = OK, body = inline(Response)),
-    ),  params(
+    ), params(
         (
             "organization" = u32,
             description = "The organization ID",
@@ -70,13 +70,13 @@ mod post {
         (status = FORBIDDEN, body = inline(ApiError)),
         (status = CONFLICT, body = inline(ApiError)),
         (status = NOT_FOUND, body = inline(ApiError)),
-    ),  params(
+    ), params(
         (
             "organization" = u32,
             description = "The organization ID",
             example = 1,
         ),
-    ))]
+    ), request_body = inline(Payload))]
     pub async fn route(
         state: GetState,
         user: GetUser,

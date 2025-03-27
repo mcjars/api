@@ -19,7 +19,7 @@ mod get {
     #[utoipa::path(get, path = "/", responses(
         (status = OK, body = inline(Response)),
         (status = NOT_FOUND, body = inline(ApiError)),
-    ),  params(
+    ), params(
         (
             "organization" = u32,
             description = "The organization ID",
@@ -90,7 +90,7 @@ mod delete {
         (status = FORBIDDEN, body = inline(ApiError)),
         (status = CONFLICT, body = inline(ApiError)),
         (status = NOT_FOUND, body = inline(ApiError)),
-    ),  params(
+    ), params(
         (
             "organization" = u32,
             description = "The organization ID",

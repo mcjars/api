@@ -21,7 +21,7 @@ mod get {
 
     #[utoipa::path(get, path = "/", responses(
         (status = OK, body = inline(Response)),
-    ),  params(
+    ), params(
         (
             "organization" = u32,
             description = "The organization ID",
@@ -67,7 +67,7 @@ mod post {
         (status = CREATED, body = inline(Response)),
         (status = CONFLICT, body = inline(ApiError)),
         (status = BAD_REQUEST, body = inline(ApiError)),
-    ),  params(
+    ), params(
         (
             "organization" = u32,
             description = "The organization ID",

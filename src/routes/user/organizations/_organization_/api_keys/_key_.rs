@@ -21,7 +21,7 @@ mod get {
     #[utoipa::path(get, path = "/", responses(
         (status = OK, body = inline(Response)),
         (status = NOT_FOUND, body = inline(ApiError)),
-    ),  params(
+    ), params(
         (
             "organization" = u32,
             description = "The organization ID",
@@ -84,7 +84,7 @@ mod delete {
     #[utoipa::path(delete, path = "/", responses(
         (status = OK, body = inline(Response)),
         (status = NOT_FOUND, body = inline(ApiError)),
-    ),  params(
+    ), params(
         (
             "organization" = u32,
             description = "The organization ID",
