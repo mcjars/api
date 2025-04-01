@@ -25,8 +25,20 @@ async fn auth(
     mut req: Request,
     next: Next,
 ) -> Result<Response, StatusCode> {
-    let organization = match organization[0].parse::<u32>() {
-        Ok(organization) => organization as i32,
+    let organization = match organization[0].parse::<i32>() {
+        Ok(organization) => {
+            if organization < 1 {
+                return Ok(Response::builder()
+                    .status(StatusCode::BAD_REQUEST)
+                    .header("Content-Type", "application/json")
+                    .body(Body::from(
+                        serde_json::to_string(&ApiError::new(&["invalid organization"])).unwrap(),
+                    ))
+                    .unwrap());
+            }
+
+            organization
+        }
         Err(_) => {
             return Ok(Response::builder()
                 .status(StatusCode::BAD_REQUEST)

@@ -20,7 +20,7 @@ mod post {
         (status = NOT_FOUND, body = inline(ApiError)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             minimum = 1,
         ),
@@ -28,10 +28,9 @@ mod post {
     pub async fn route(
         state: GetState,
         user: GetUser,
-        Path(organization): Path<u32>,
+        Path(organization): Path<i32>,
     ) -> axum::Json<serde_json::Value> {
-        let organization =
-            Organization::by_id(&state.database, &state.cache, organization as i32).await;
+        let organization = Organization::by_id(&state.database, &state.cache, organization).await;
 
         if let Some(organization) = organization {
             let subuser =

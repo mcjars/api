@@ -23,12 +23,12 @@ mod get {
         (status = NOT_FOUND, body = inline(ApiError)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             example = 1,
         ),
         (
-            "key" = u32,
+            "key" = i32,
             description = "The api key ID",
             example = 1,
         ),
@@ -36,9 +36,9 @@ mod get {
     pub async fn route(
         state: GetState,
         organization: GetOrganization,
-        Path((_organization, key)): Path<(u32, u32)>,
+        Path((_organization, key)): Path<(i32, i32)>,
     ) -> (StatusCode, axum::Json<serde_json::Value>) {
-        let key = OrganizationKey::by_id(&state.database, key as i32).await;
+        let key = OrganizationKey::by_id(&state.database, key).await;
 
         if let Some(key) = key {
             if key.organization_id != organization.id {
@@ -86,12 +86,12 @@ mod delete {
         (status = NOT_FOUND, body = inline(ApiError)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             example = 1,
         ),
         (
-            "key" = u32,
+            "key" = i32,
             description = "The api key ID",
             example = 1,
         ),
@@ -99,9 +99,9 @@ mod delete {
     pub async fn route(
         state: GetState,
         organization: GetOrganization,
-        Path((_organization, key)): Path<(u32, u32)>,
+        Path((_organization, key)): Path<(i32, i32)>,
     ) -> (StatusCode, axum::Json<serde_json::Value>) {
-        let key = OrganizationKey::by_id(&state.database, key as i32).await;
+        let key = OrganizationKey::by_id(&state.database, key).await;
 
         if let Some(key) = key {
             if key.organization_id != organization.id {

@@ -165,6 +165,10 @@ impl Organization {
         cache: &crate::cache::Cache,
         id: i32,
     ) -> Option<Self> {
+        if id < 1 {
+            return None;
+        }
+
         cache
             .cached(&format!("organization::{}", id), 300, || async {
                 sqlx::query(&format!(
@@ -386,6 +390,10 @@ impl OrganizationKey {
     }
 
     pub async fn by_id(database: &crate::database::Database, id: i32) -> Option<Self> {
+        if id < 1 {
+            return None;
+        }
+
         sqlx::query(&format!(
             "SELECT {} FROM organization_keys WHERE organization_keys.id = $1",
             Self::columns_sql(None, None)

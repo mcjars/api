@@ -186,8 +186,12 @@ impl Build {
             96 => Some("sha384"),
             128 => Some("sha512"),
             _ => {
-                if identifier.parse::<u32>().is_ok() {
-                    None
+                if let Ok(id) = identifier.parse::<i32>() {
+                    if id < 1 {
+                        return None;
+                    } else {
+                        None
+                    }
                 } else {
                     return None;
                 }

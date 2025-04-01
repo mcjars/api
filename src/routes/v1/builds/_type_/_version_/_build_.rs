@@ -41,11 +41,20 @@ mod get {
         state: GetState,
         Path((r#type, version, build)): Path<(ServerType, String, String)>,
     ) -> (StatusCode, axum::Json<serde_json::Value>) {
-        let build: Option<u32> = if build == "latest" {
+        let build: Option<i32> = if build == "latest" {
             None
         } else {
             match build.parse() {
-                Ok(build) => Some(build),
+                Ok(build) => {
+                    if build < 0 {
+                        return (
+                            StatusCode::BAD_REQUEST,
+                            axum::Json(ApiError::new(&["invalid build"]).to_value()),
+                        );
+                    }
+
+                    Some(build)
+                }
                 Err(_) => {
                     return (
                         StatusCode::BAD_REQUEST,
@@ -68,15 +77,7 @@ mod get {
                         build.map(|b| b.to_string()).unwrap_or("latest".to_string())
                     ),
                     3600,
-                    || {
-                        Build::by_build_number(
-                            &state.database,
-                            r#type,
-                            &location,
-                            &version,
-                            build.map(|b| b as i32),
-                        )
-                    },
+                    || Build::by_build_number(&state.database, r#type, &location, &version, build),
                 )
                 .await;
 
