@@ -86,6 +86,16 @@ async fn handle_api_request(state: GetState, req: Request, next: Next) -> Respon
                 ApiError::new(&["too many requests"]).to_value().to_string(),
             ))
             .unwrap();
+    } else if let Err(None) = request_id {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .header("Content-Type", "application/json")
+            .body(Body::from(
+                ApiError::new(&["broken request, likely invalid IP"])
+                    .to_value()
+                    .to_string(),
+            ))
+            .unwrap();
     }
 
     let mut headers = HeaderMap::new();

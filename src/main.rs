@@ -20,7 +20,7 @@ use models::r#type::ServerType;
 use routes::{ApiError, GetState};
 use sentry_tower::SentryHttpLayer;
 use sha1::Digest;
-use std::{sync::Arc, time::Instant};
+use std::{net::IpAddr, sync::Arc, time::Instant};
 use tower_cookies::CookieManagerLayer;
 use tower_http::{catch_panic::CatchPanicLayer, cors::CorsLayer, trace::TraceLayer};
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
@@ -47,12 +47,9 @@ fn handle_panic(_err: Box<dyn std::any::Any + Send + 'static>) -> Response<Body>
 }
 
 fn handle_request(req: &Request<Body>, _span: &tracing::Span) {
-    let ip = req
-        .headers()
-        .get("x-real-ip")
-        .or_else(|| req.headers().get("x-forwarded-for"))
-        .map(|ip| ip.to_str().unwrap_or_default())
-        .unwrap_or_default();
+    let ip = extract_ip(req.headers())
+        .map(|ip| ip.to_string())
+        .unwrap_or_else(|| "unknown".to_string());
 
     logger::log(
         logger::LoggerLevel::Info,
@@ -76,7 +73,7 @@ async fn handle_postprocessing(req: Request, next: Next) -> Result<Response, Sta
 
     let mut response = next.run(req).await;
 
-    if let Some(content_type) = response.headers().get("Content-Type").cloned() {
+    if let Some(content_type) = response.headers().get("Content-Type") {
         if content_type
             .to_str()
             .map(|c| c.starts_with("text/plain"))
@@ -129,6 +126,26 @@ async fn handle_postprocessing(req: Request, next: Next) -> Result<Response, Sta
     }
 
     Ok(Response::from_parts(parts, Body::from(body_bytes)))
+}
+
+pub fn extract_ip(headers: &HeaderMap) -> Option<IpAddr> {
+    let ip = headers
+        .get("x-real-ip")
+        .or_else(|| headers.get("x-forwarded-for"))
+        .map(|ip| ip.to_str().unwrap_or_default())
+        .unwrap_or_default();
+
+    if ip.is_empty() {
+        return None;
+    }
+
+    let ip = if ip.contains(',') {
+        ip.split(',').next().unwrap_or_default().trim().to_string()
+    } else {
+        ip.to_string()
+    };
+
+    ip.parse().ok()
 }
 
 #[tokio::main]
@@ -230,8 +247,7 @@ async fn main() {
                                 )
                                 .as_str(),
                             )
-                            .await
-                            .unwrap(),
+                            .await,
                             "legacy-fabric" => reqwest::get(
                                 format!(
                                     "https://meta.legacyfabric.net/v2/versions/loader/{}/{}/{}/server/jar",
@@ -241,13 +257,23 @@ async fn main() {
                                 )
                                 .as_str(),
                             )
-                            .await
-                            .unwrap(),
+                            .await,
                             _ => return (
                                 StatusCode::NOT_FOUND,
                                 headers,
                                 Body::from(b"project not supported".to_vec()),
                             ),
+                        };
+
+                        let response = match response {
+                            Ok(response) => response,
+                            Err(_) => {
+                                return (
+                                    StatusCode::NOT_FOUND,
+                                    headers,
+                                    Body::from(b"error fetching build".to_vec()),
+                                );
+                            }
                         };
 
                         if !response.status().is_success() {

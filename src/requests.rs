@@ -68,15 +68,12 @@ impl RequestLogger {
         request: Parts,
         organization: Option<&Organization>,
     ) -> Result<(Option<String>, Option<RateLimitData>), Option<RateLimitData>> {
-        let mut ratelimit: Option<RateLimitData> = None;
+        let ip = match crate::extract_ip(&request.headers) {
+            Some(ip) => ip,
+            None => return Err(None),
+        };
 
-        let ip = request
-            .headers
-            .get("x-real-ip")
-            .or_else(|| request.headers.get("x-forwarded-for"))
-            .map(|ip| ip.to_str().unwrap_or_default())
-            .unwrap_or_default()
-            .to_string();
+        let mut ratelimit: Option<RateLimitData> = None;
 
         if organization.is_none() || !organization.as_ref().unwrap().verified {
             let ratelimit_key = format!("mcjars_api::ratelimit::{}", ip);
@@ -136,7 +133,7 @@ impl RequestLogger {
             status: 0,
             body: None,
 
-            ip: ip.parse().unwrap(),
+            ip: ip.into(),
             continent: None,
             country: None,
 
