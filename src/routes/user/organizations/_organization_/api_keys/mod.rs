@@ -23,7 +23,7 @@ mod get {
         (status = OK, body = inline(Response)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             example = 1,
         ),
@@ -69,7 +69,7 @@ mod post {
         (status = BAD_REQUEST, body = inline(ApiError)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             example = 1,
         ),

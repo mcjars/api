@@ -21,7 +21,7 @@ mod get {
         (status = NOT_FOUND, body = inline(ApiError)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             example = 1,
         ),
@@ -34,7 +34,7 @@ mod get {
     pub async fn route(
         state: GetState,
         organization: GetOrganization,
-        Path((_organization, login)): Path<(u32, String)>,
+        Path((_organization, login)): Path<(i32, String)>,
     ) -> (StatusCode, axum::Json<serde_json::Value>) {
         let user = User::by_login(&state.database, &state.cache, &login).await;
 
@@ -92,7 +92,7 @@ mod delete {
         (status = NOT_FOUND, body = inline(ApiError)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             example = 1,
         ),
@@ -106,7 +106,7 @@ mod delete {
         state: GetState,
         auth_user: GetUser,
         organization: GetOrganization,
-        Path((_organization, login)): Path<(u32, String)>,
+        Path((_organization, login)): Path<(i32, String)>,
     ) -> (StatusCode, axum::Json<serde_json::Value>) {
         let user = User::by_login(&state.database, &state.cache, &login).await;
 

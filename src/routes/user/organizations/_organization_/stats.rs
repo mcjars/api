@@ -31,7 +31,7 @@ mod get {
         (status = OK, body = inline(Response)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             example = 1,
         ),
@@ -49,12 +49,12 @@ mod get {
                     let data = sqlx::query(
                         r#"
                         SELECT
-                            COUNT(*) AS requests,
-                            COUNT(DISTINCT requests.user_agent) AS user_agents,
-                            COUNT(DISTINCT requests.ip) AS ips,
-                            COUNT(DISTINCT requests.origin) AS origins,
-                            COUNT(DISTINCT requests.continent) AS continents,
-                            COUNT(DISTINCT requests.country) AS countries
+                            COUNT(*),
+                            COUNT(DISTINCT requests.user_agent),
+                            COUNT(DISTINCT requests.ip),
+                            COUNT(DISTINCT requests.origin),
+                            COUNT(DISTINCT requests.continent),
+                            COUNT(DISTINCT requests.country)
                         FROM requests
                         WHERE requests.organization_id = $1
                         "#,
@@ -65,12 +65,12 @@ mod get {
                     .unwrap();
 
                     Stats {
-                        requests: data.get("requests"),
-                        user_agents: data.get("user_agents"),
-                        ips: data.get("ips"),
-                        origins: data.get("origins"),
-                        continents: data.get("continents"),
-                        countries: data.get("countries"),
+                        requests: data.get(0),
+                        user_agents: data.get(1),
+                        ips: data.get(2),
+                        origins: data.get(3),
+                        continents: data.get(4),
+                        countries: data.get(5),
                     }
                 },
             )

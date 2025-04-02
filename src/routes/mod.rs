@@ -21,17 +21,17 @@ mod v1;
 mod v2;
 
 #[derive(ToSchema, Serialize)]
-pub struct ApiError {
+pub struct ApiError<'a> {
     #[schema(default = false)]
     pub success: bool,
-    pub errors: Vec<String>,
+    pub errors: &'a [&'a str],
 }
 
-impl ApiError {
-    pub fn new(errors: &[&str]) -> Self {
+impl<'a> ApiError<'a> {
+    pub fn new(errors: &'a [&'a str]) -> Self {
         Self {
             success: false,
-            errors: errors.iter().map(|s| s.to_string()).collect(),
+            errors,
         }
     }
 

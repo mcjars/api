@@ -18,12 +18,6 @@ mod get {
 
     #[utoipa::path(get, path = "/", responses(
         (status = OK, body = inline(Response)),
-    ), params(
-        (
-            "organization" = u32,
-            description = "The organization ID",
-            example = 1,
-        ),
     ))]
     pub async fn route(
         state: GetState,

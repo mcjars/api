@@ -90,7 +90,7 @@ mod get {
         (status = OK, body = inline(Response)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             example = 1,
         ),
@@ -138,7 +138,7 @@ mod patch {
         (status = NOT_FOUND, body = inline(ApiError)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             example = 1,
         ),
@@ -222,7 +222,7 @@ mod delete {
         (status = OK, body = inline(Response)),
     ), params(
         (
-            "organization" = u32,
+            "organization" = i32,
             description = "The organization ID",
             example = 1,
         ),

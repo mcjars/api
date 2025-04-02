@@ -4,7 +4,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 mod get {
     use crate::{
         models::r#type::{ESTABLISHED_TYPES, ServerType, ServerTypeInfo},
-        routes::{ApiError, GetState},
+        routes::GetState,
     };
     use indexmap::IndexMap;
     use serde::{Deserialize, Serialize};
@@ -18,7 +18,6 @@ mod get {
 
     #[utoipa::path(get, path = "/", responses(
         (status = OK, body = inline(Response)),
-        (status = NOT_FOUND, body = inline(ApiError)),
     ))]
     pub async fn route(state: GetState) -> axum::Json<serde_json::Value> {
         let data = ServerType::all(&state.database, &state.cache).await;

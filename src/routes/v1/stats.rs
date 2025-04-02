@@ -2,7 +2,7 @@ use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod get {
-    use crate::routes::{ApiError, GetState};
+    use crate::routes::GetState;
     use serde::{Deserialize, Serialize};
     use sqlx::Row;
     use utoipa::ToSchema;
@@ -41,30 +41,35 @@ mod get {
 
     #[utoipa::path(get, path = "/", responses(
         (status = OK, body = inline(Response)),
-        (status = NOT_FOUND, body = inline(ApiError)),
     ))]
     pub async fn route(state: GetState) -> axum::Json<serde_json::Value> {
-        let data = state
+        let stats = state
             .cache
             .cached("stats::all", 3600, || async {
                 let (hashes, requests, builds) = tokio::join!(
                     sqlx::query(
                         r#"
-                        SELECT COUNT(*)
+                        SELECT
+                            COUNT(*)
                         FROM build_hashes
                         "#
                     )
                     .fetch_one(state.database.read()),
                     sqlx::query(
                         r#"
-                        SELECT COUNT(*), pg_database_size(current_database())
+                        SELECT
+                            COUNT(*),
+                            pg_database_size(current_database())
                         FROM requests
                         "#
                     )
                     .fetch_one(state.database.read()),
                     sqlx::query(
                         r#"
-                        SELECT COUNT(*), SUM(DISTINCT jar_size), SUM(DISTINCT zip_size)
+                        SELECT
+                            COUNT(*),
+                            SUM(DISTINCT jar_size),
+                            SUM(DISTINCT zip_size)
                         FROM builds
                         "#
                     )
@@ -92,7 +97,7 @@ mod get {
         axum::Json(
             serde_json::to_value(&Response {
                 success: true,
-                stats: data,
+                stats,
             })
             .unwrap(),
         )
