@@ -59,11 +59,11 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
                 let types = ServerType::all(&state.database, &state.cache).await;
 
                 let files = types
-                    .values()
-                    .map(|t| IndexFile {
+                    .iter()
+                    .map(|(k, t)| IndexFile {
                         name: format!("{}/", t.name),
                         size: format!("{} builds", t.builds),
-                        href: None,
+                        href: Some(format!("/{}", k.to_string().to_lowercase())),
                     })
                     .collect::<Vec<_>>();
 
