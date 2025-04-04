@@ -74,7 +74,6 @@ impl RequestLogger {
         };
 
         let mut ratelimit: Option<RateLimitData> = None;
-
         if organization.is_none() || !organization.as_ref().unwrap().verified {
             let ratelimit_key = format!("mcjars_api::ratelimit::{}", ip);
 
@@ -103,6 +102,7 @@ impl RequestLogger {
             .map(|q| q.contains("tracking=none"))
             .unwrap_or(false)
             || ACCEPTED_METHODS.iter().all(|m| *m != request.method)
+            || !request.uri.path().starts_with("/api")
             || request.uri.path().starts_with("/api/github")
         {
             return Ok((None, ratelimit));

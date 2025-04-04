@@ -6,7 +6,7 @@ mod _key_;
 mod get {
     use crate::{
         models::organization::OrganizationKey,
-        routes::{GetState, user::organizations::_organization_::GetOrganization},
+        routes::{GetState, api::user::organizations::_organization_::GetOrganization},
     };
     use serde::{Deserialize, Serialize};
     use utoipa::ToSchema;
@@ -46,7 +46,7 @@ mod get {
 mod post {
     use crate::{
         models::organization::OrganizationKey,
-        routes::{ApiError, GetState, user::organizations::_organization_::GetOrganization},
+        routes::{ApiError, GetState, api::user::organizations::_organization_::GetOrganization},
     };
     use axum::http::StatusCode;
     use serde::{Deserialize, Serialize};

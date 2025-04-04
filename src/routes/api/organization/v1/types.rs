@@ -4,7 +4,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 mod get {
     use crate::{
         models::r#type::{ServerType, ServerTypeInfo},
-        routes::{GetState, organization::GetOrganization},
+        routes::{GetState, api::organization::GetOrganization},
     };
     use indexmap::IndexMap;
     use serde::{Deserialize, Serialize};
@@ -43,7 +43,7 @@ mod get {
 mod patch {
     use crate::{
         models::r#type::ServerType,
-        routes::{GetState, organization::GetOrganization},
+        routes::{GetState, api::organization::GetOrganization},
     };
     use rustis::commands::GenericCommands;
     use serde::{Deserialize, Serialize};

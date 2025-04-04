@@ -201,6 +201,10 @@ impl ServerType {
 
         result
     }
+
+    pub fn infos(&self) -> &ServerTypeInfo {
+        TYPE_INFOS.get(self).unwrap()
+    }
 }
 
 static TYPE_INFOS: LazyLock<IndexMap<ServerType, ServerTypeInfo>> = LazyLock::new(|| {

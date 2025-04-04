@@ -172,6 +172,17 @@ impl BaseModel for Build {
 }
 
 impl Build {
+    pub fn installation_size(&self) -> u64 {
+        self.installation
+            .iter()
+            .flat_map(|step| step.iter())
+            .filter_map(|step| match step {
+                InstallationStep::Download(step) => Some(step.size),
+                _ => None,
+            })
+            .sum()
+    }
+
     pub async fn by_v1_identifier(
         database: &crate::database::Database,
         cache: &crate::cache::Cache,

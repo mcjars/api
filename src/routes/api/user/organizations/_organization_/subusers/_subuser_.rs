@@ -4,7 +4,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 mod get {
     use crate::{
         models::{organization::OrganizationSubuser, user::User},
-        routes::{ApiError, GetState, user::organizations::_organization_::GetOrganization},
+        routes::{ApiError, GetState, api::user::organizations::_organization_::GetOrganization},
     };
     use axum::{extract::Path, http::StatusCode};
     use serde::{Deserialize, Serialize};
@@ -73,7 +73,7 @@ mod delete {
         models::{organization::OrganizationSubuser, user::User},
         routes::{
             ApiError, GetState,
-            user::{GetUser, organizations::_organization_::GetOrganization},
+            api::user::{GetUser, organizations::_organization_::GetOrganization},
         },
     };
     use axum::{extract::Path, http::StatusCode};

@@ -6,7 +6,7 @@ mod _organization_;
 mod get {
     use crate::{
         models::organization::Organization,
-        routes::{GetState, user::GetUser},
+        routes::{GetState, api::user::GetUser},
     };
     use indexmap::IndexSet;
     use serde::{Deserialize, Serialize};
@@ -68,7 +68,7 @@ mod get {
 mod post {
     use crate::{
         models::organization::Organization,
-        routes::{ApiError, GetState, user::GetUser},
+        routes::{ApiError, GetState, api::user::GetUser},
     };
     use axum::http::StatusCode;
     use serde::{Deserialize, Serialize};

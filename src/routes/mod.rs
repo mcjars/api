@@ -2,9 +2,8 @@ use crate::models::organization::Organization;
 use axum::{
     body::Body,
     extract::Request,
-    http::{HeaderMap, StatusCode},
+    http::{HeaderMap, Response, StatusCode},
     middleware::Next,
-    response::Response,
 };
 use serde::Serialize;
 use std::{
@@ -14,11 +13,8 @@ use std::{
 use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
 
-mod github;
-mod organization;
-mod user;
-mod v1;
-mod v2;
+mod api;
+mod index;
 
 #[derive(ToSchema, Serialize)]
 pub struct ApiError<'a> {
@@ -163,11 +159,8 @@ async fn handle_api_request(state: GetState, req: Request, next: Next) -> Respon
 
 pub fn router(state: &State) -> OpenApiRouter<State> {
     OpenApiRouter::new()
-        .nest("/v1", v1::router(state))
-        .nest("/v2", v2::router(state))
-        .nest("/organization", organization::router(state))
-        .nest("/github", github::router(state))
-        .nest("/user", user::router(state))
+        .nest("/api", api::router(state))
+        .nest("/index", index::router(state))
         .route_layer(axum::middleware::from_fn_with_state(
             state.clone(),
             handle_api_request,

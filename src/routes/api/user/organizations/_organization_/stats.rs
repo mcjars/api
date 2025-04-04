@@ -2,7 +2,7 @@ use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod get {
-    use crate::routes::{GetState, user::organizations::_organization_::GetOrganization};
+    use crate::routes::{GetState, api::user::organizations::_organization_::GetOrganization};
     use serde::{Deserialize, Serialize};
     use sqlx::Row;
     use utoipa::ToSchema;

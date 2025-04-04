@@ -6,7 +6,7 @@ mod types;
 mod get {
     use crate::{
         models::r#type::ServerType,
-        routes::{GetState, organization::GetOrganization},
+        routes::{GetState, api::organization::GetOrganization},
     };
     use serde::{Deserialize, Serialize};
     use sqlx::Row;

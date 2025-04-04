@@ -8,6 +8,7 @@ mod routes;
 mod s3;
 
 use axum::{
+    ServiceExt,
     body::Body,
     extract::{Path, Request},
     http::{HeaderMap, StatusCode},
@@ -21,8 +22,12 @@ use routes::{ApiError, GetState};
 use sentry_tower::SentryHttpLayer;
 use sha1::Digest;
 use std::{net::IpAddr, sync::Arc, time::Instant};
+use tower::Layer;
 use tower_cookies::CookieManagerLayer;
-use tower_http::{catch_panic::CatchPanicLayer, cors::CorsLayer, trace::TraceLayer};
+use tower_http::{
+    catch_panic::CatchPanicLayer, cors::CorsLayer, normalize_path::NormalizePathLayer,
+    trace::TraceLayer,
+};
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
 use utoipa_axum::router::OpenApiRouter;
 
@@ -192,7 +197,7 @@ async fn main() {
 
     let app =
         OpenApiRouter::new()
-            .nest("/api", routes::router(&state))
+            .merge(routes::router(&state))
             .route(
                 "/",
                 get(|| async move {
@@ -203,7 +208,7 @@ async fn main() {
                     (
                         StatusCode::OK,
                         headers,
-                        include_str!("../static/index.html"),
+                        include_str!("../static/api.html"),
                     )
                 }),
             )
@@ -347,7 +352,12 @@ async fn main() {
 
     let router = router.route("/openapi.json", get(|| async move { axum::Json(openapi) }));
 
-    axum::serve(listener, router.into_make_service())
-        .await
-        .unwrap();
+    axum::serve(
+        listener,
+        ServiceExt::<Request>::into_make_service(
+            NormalizePathLayer::trim_trailing_slash().layer(router),
+        ),
+    )
+    .await
+    .unwrap();
 }

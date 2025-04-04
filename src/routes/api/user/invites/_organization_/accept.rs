@@ -4,7 +4,7 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 mod post {
     use crate::{
         models::organization::{Organization, OrganizationSubuser},
-        routes::{ApiError, GetState, user::GetUser},
+        routes::{ApiError, GetState, api::user::GetUser},
     };
     use axum::extract::Path;
     use serde::{Deserialize, Serialize};

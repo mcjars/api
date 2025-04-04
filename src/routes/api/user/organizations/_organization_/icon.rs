@@ -2,7 +2,9 @@ use super::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod post {
-    use crate::routes::{ApiError, GetState, user::organizations::_organization_::GetOrganization};
+    use crate::routes::{
+        ApiError, GetState, api::user::organizations::_organization_::GetOrganization,
+    };
     use axum::{body::Bytes, http::StatusCode};
     use image::{ImageReader, codecs::webp::WebPEncoder, imageops::FilterType};
     use rustis::commands::GenericCommands;

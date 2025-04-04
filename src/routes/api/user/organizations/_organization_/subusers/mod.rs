@@ -6,7 +6,7 @@ mod _subuser_;
 mod get {
     use crate::{
         models::organization::OrganizationSubuser,
-        routes::{GetState, user::organizations::_organization_::GetOrganization},
+        routes::{GetState, api::user::organizations::_organization_::GetOrganization},
     };
     use serde::{Deserialize, Serialize};
     use utoipa::ToSchema;
@@ -48,7 +48,7 @@ mod post {
         models::{organization::OrganizationSubuser, user::User},
         routes::{
             ApiError, GetState,
-            user::{GetUser, organizations::_organization_::GetOrganization},
+            api::user::{GetUser, organizations::_organization_::GetOrganization},
         },
     };
     use axum::http::StatusCode;

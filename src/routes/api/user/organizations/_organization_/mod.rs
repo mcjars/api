@@ -1,6 +1,6 @@
 use crate::{
     models::organization::Organization,
-    routes::{ApiError, GetState, State, user::GetUser},
+    routes::{ApiError, GetState, State, api::user::GetUser},
 };
 use axum::{
     body::Body,
@@ -114,7 +114,7 @@ mod patch {
             r#type::ServerType,
             user::User,
         },
-        routes::{ApiError, GetState, user::GetUser},
+        routes::{ApiError, GetState, api::user::GetUser},
     };
     use axum::http::StatusCode;
     use serde::{Deserialize, Serialize};
@@ -207,7 +207,7 @@ mod delete {
     use super::GetOrganization;
     use crate::{
         models::organization::Organization,
-        routes::{ApiError, GetState, user::GetUser},
+        routes::{ApiError, GetState, api::user::GetUser},
     };
     use axum::http::StatusCode;
     use serde::{Deserialize, Serialize};
