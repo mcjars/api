@@ -63,7 +63,7 @@ pub fn router(state: &State) -> OpenApiRouter<State> {
                     .map(|(k, t)| IndexFile {
                         name: format!("{}/", t.name),
                         size: format!("{} builds", t.builds),
-                        href: Some(format!("/{}", k.to_string().to_lowercase())),
+                        href: Some(format!("{}/", k.to_string().to_lowercase())),
                     })
                     .collect::<Vec<_>>();
 
