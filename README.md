@@ -1,3 +1,6 @@
+> [!WARNING]
+> moved to https://github.com/mcjars/www/tree/main/backend
+
 # api - MCJars Minecraft Versions API
 
 "mcvapi" is an api tool for retrieving Minecraft server versions. It allows you to easily download, install, and lookup Minecraft server versions. This is the api part that runs on 6 HA Hetzner VMs with 3 Load Balancers.
